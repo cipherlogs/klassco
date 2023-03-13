@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Logo
   other-modules:
       Paths_Klassco
   hs-source-dirs:
@@ -33,6 +34,9 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , directory
+    , filepath
+    , regex-tdfa
   default-language: Haskell2010
 
 executable Klassco-exe
@@ -45,6 +49,9 @@ executable Klassco-exe
   build-depends:
       Klassco
     , base >=4.7 && <5
+    , directory
+    , filepath
+    , regex-tdfa
   default-language: Haskell2010
 
 test-suite Klassco-test
@@ -58,4 +65,7 @@ test-suite Klassco-test
   build-depends:
       Klassco
     , base >=4.7 && <5
+    , directory
+    , filepath
+    , regex-tdfa
   default-language: Haskell2010
