@@ -23,9 +23,13 @@ printHelp canShowLogo =
     putStrLn ("  -m, --mode \t\t small desc of what this thing do.")
 
     putStrLn ("\nOptions:")
-    putStrLn ("  -t, --test \t\t small desc of what this thing do.")
+    putStrLn ("  -m, --min INTEGER \t\t Minimum number of class" ++
+              "combinations to check for (Default: 2)")
+
     putStrLn ("  -m, --mode \t\t small desc of what this thing do.")
     putStrLn ("  -h, --help \t\t show usage and all options.")
+    putStrLn ("  -s, --summary \t\t show usage and all options.")
+    putStrLn ("  -v, --version \t\t display the current version.")
 
     putStrLn ("\n\nDocumentation can be found at " ++ repoUrl)
 
@@ -38,9 +42,29 @@ printMessage msg =
     putStrLn ("to see the usage information.")
     putStrLn ("Happy computing!")
 
-parseArgs :: [String] -> (Maybe String, [String])
-parseArgs [] = (Nothing, [])
-parseArgs (x:xs) = (Just x, xs)
+data CliFlag =
+  Fhelp |
+  Fsummary |
+  Fversion |
+  Fmin
+  deriving Eq
+
+parseFlag :: String -> Maybe CliFlag
+parseFlag flag
+  | flag == "-h" || flag == "--help" = Just Fhelp
+  | otherwise = Nothing
+
+-- maybe rewrite this so that it can look nicer.
+-- how about using guards only
+parseArgs :: [String] -> ([CliFlag], Maybe String)
+parseArgs [] = ([Fhelp], Nothing)
+parseArgs [x]
+  | x == "-h" || x == "--help" = ([Fhelp], Nothing)
+  | otherwise = ([], Just x)
+
+parseArgs xs
+  | "-h" `elem` xs || "--help" `elem` xs = ([Fhelp], Nothing)
+  | otherwise = (mapMaybe parseFlag $ init xs, Just $ last xs)
 
 getFiles :: FilePath -> IO [FilePath]
 getFiles dir =
@@ -86,21 +110,23 @@ main :: IO ()
 main =
   do
     args <- getArgs
-    let (userPath, options) = parseArgs args
-    let defaultExt = ["html", "js", "jsx", "tsx", ".txt"]
+    handleArgs $ parseArgs args
 
-    maybe (printMessage badArgsMsg)
-          (\path ->
-            do
-              parsedPath <- parsePathWith defaultExt path
+  where handleArgs :: ([CliFlag], Maybe String) -> IO ()
+        handleArgs (options, userPath)
+          | Fhelp `elem` options = printHelp False
+          | userPath == Nothing = printMessage forgotPathMsg
+          | otherwise = do
+              let defaultExt = ["html"]
+              parsedPath <- parsePathWith defaultExt (fromJust userPath)
+
               maybe (printMessage badPathMsg)
                     (mapM_ (putStrLn . show) <=< getClasses)
                     (parsedPath)
-          )
-          (userPath)
 
-  where badArgsMsg :: String
-        badArgsMsg = "Uh-Oh! It looks like you missed the path parameter."
+        forgotPathMsg :: String
+        forgotPathMsg =
+          "Uh-Oh! It looks like you missed the path parameter."
 
         badPathMsg :: String
         badPathMsg =
