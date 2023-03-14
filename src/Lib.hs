@@ -76,9 +76,6 @@ anyPredicates predicates x = any (thrush x) predicates
 filter' :: [(a -> Bool)] -> [a] -> [a]
 filter' filters = filter (anyPredicates filters)
 
-myCombos :: [[String]]
-myCombos = splitBySpace . getCombos 1 . getUniqClasses $ rawData
-
 isUniq :: (Eq a ) => [a] -> Bool
 isUniq xs = length xs == length (nub xs)
 
@@ -88,7 +85,6 @@ getSubMatches regex = getAllTextSubmatches . (=~ regex)
 getMatches :: String -> String -> [String]
 getMatches regex = getAllTextMatches . (=~ regex)
 
--- it should test against double quotes and single quotes
 getClassNames :: String -> [[String]]
 getClassNames =
   map (words . (nth "" 1) . getSubMatches regexPattern)
@@ -98,6 +94,9 @@ getClassNames =
     regexPattern :: String
     regexPattern = "[class|className]=\"([^\"]*)\""
 
+
+myCombos :: [[String]]
+myCombos = splitBySpace . getCombos 1 . getUniqClasses $ rawData
 
 rawData :: [[String]]
 rawData =
