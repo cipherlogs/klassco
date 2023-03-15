@@ -19,7 +19,7 @@ printHelp =
     putStrLn ("Usage: klassco [options] path")
 
     putStrLn ("\n\npath:")
-    putStrLn ("  the path to scan for duplicate CSS classes.")
+    putStrLn ("  the path to analyze and scan for duplicate CSS classes.")
     putStr ("  the utility will automatically detect whether the path is ")
     putStrLn ("a directory or a file.")
 
