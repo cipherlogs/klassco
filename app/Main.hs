@@ -63,8 +63,6 @@ parseFlag flag
   | flag == "-e" || flag == "--extensions" = Just Fextensions
   | otherwise = Nothing
 
--- maybe rewrite this so that it can look nicer.
--- how about using guards only
 parseArgs :: [String] -> ([CliFlag], Maybe String)
 parseArgs [] = ([Fhelp], Nothing)
 
@@ -78,6 +76,12 @@ parseArgs xs
   | "-h" `elem` xs || "--help" `elem` xs = ([Fhelp], Nothing)
   | "-v" `elem` xs || "--version" `elem` xs = ([Fversion], Nothing)
   | otherwise = (mapMaybe parseFlag $ init xs, Just $ last xs)
+
+getValOf :: [String] -> [String] -> Maybe String
+getValOf _ args | length args < 2 = Nothing
+getValOf flags (arg1:arg2:restArgs)
+  | any (== arg1) flags = Just arg2
+  | otherwise = getValOf flags (arg2:restArgs)
 
 getFiles :: FilePath -> IO [FilePath]
 getFiles dir =
@@ -120,28 +124,32 @@ getClasses = do mapM go
 
 
 main :: IO ()
-main =
-  do
-    args <- getArgs
-    handleArgs $ parseArgs args
+main = getArgs >>= handleArgs
 
-  where handleArgs :: ([CliFlag], Maybe String) -> IO ()
-        handleArgs (options, userPath)
-          | Fhelp `elem` options = printHelp
-          | Fversion `elem` options = putStrLn ("Klassco version: 7.1.0")
-          | userPath == Nothing = printMessage forgotPathMsg
-          | otherwise = do
-              let defaultExt = ["html"]
-              parsedPath <- parsePathWith defaultExt (fromJust userPath)
+  where
+    handleArgs :: [String] -> IO ()
+    handleArgs args
+      | Fhelp `elem` options = printHelp
+      | Fversion `elem` options = putStrLn ("Klassco version: 7.1.0")
+      | userPath == Nothing = printMessage forgotPathMsg
+      | otherwise =
+        do
+          let exts = maybe (["txt"])
+                           (words)
+                           (getValOf ["-e", "--extensions"] args)
 
-              maybe (printMessage badPathMsg)
-                    (mapM_ (putStrLn . show) <=< getClasses)
-                    (parsedPath)
+          parsedPath <- parsePathWith exts (fromJust userPath)
 
-        forgotPathMsg :: String
-        forgotPathMsg =
-          "Uh-Oh! It looks like you missed the path parameter."
+          maybe (printMessage badPathMsg)
+                (mapM_ (putStrLn . show) <=< getClasses)
+                (parsedPath)
 
-        badPathMsg :: String
-        badPathMsg =
-          "Error: the specified path does not exists or is invalid."
+      where (options, userPath) = parseArgs args
+
+    forgotPathMsg :: String
+    forgotPathMsg =
+      "Uh-Oh! It looks like you missed the path parameter."
+
+    badPathMsg :: String
+    badPathMsg =
+      "Error: the specified path does not exists or is invalid."
