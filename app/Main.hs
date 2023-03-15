@@ -16,20 +16,26 @@ printHelp =
     let repoUrl = "https://github.com/cipherlogs/Klassco"
 
     printLogo
-    putStrLn ("Usage: klassco [options] [path]")
+    putStrLn ("Usage: klassco [options] path")
 
-    putStrLn ("\n\nPath:")
-    putStrLn ("  -t, --test \t\t small desc of what this thing do.")
-    putStrLn ("  -m, --mode \t\t small desc of what this thing do.")
+    putStrLn ("\n\npath:")
+    putStrLn ("  the path to scan for duplicate CSS classes.")
+    putStr ("  the utility will automatically detect whether the path is ")
+    putStrLn ("a directory or a file.")
 
-    putStrLn ("\nOptions:")
-    putStrLn ("  -m, --min INTEGER \t minimum number of class " ++
-              "combinations to check for (Default: 2)")
+    putStrLn ("\n\noptions: [optional]")
+    putStrLn ("  -m, --min INTEGER ~ (default: 2)")
+    putStrLn ("\tminimum number of class combinations to check for.")
 
-    putStrLn ("  -m, --mode \t\t small desc of what this thing do.")
-    putStrLn ("  -h, --help \t\t show usage and all options.")
-    putStrLn ("  -s, --summary \t show usage and all options.")
-    putStrLn ("  -v, --version \t display the current version.")
+    putStrLn ("\n  -e, --extensions ~ (default: \"html js jsx\")")
+    putStrLn ("\tonly look for files with these extensions.")
+    putStrLn ("\tseperate extensions with space.")
+
+    putStrLn ("\n  -h, --help")
+    putStrLn ("\tshow usage and all of Klassco options.")
+
+    putStrLn ("\n  -v, --version")
+    putStrLn ("\tdisplay the current version of Klassco.")
 
     putStrLn ("\n\nDocumentation can be found at " ++ repoUrl)
 
