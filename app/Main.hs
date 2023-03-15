@@ -10,26 +10,26 @@ import Lib
 import Logo
 
 
-printHelp :: Bool -> IO ()
-printHelp canShowLogo =
+printHelp :: IO ()
+printHelp =
   do
     let repoUrl = "https://github.com/cipherlogs/Klassco"
 
-    canShowLogo ? (logo, return ())
-    putStrLn ("Usage: klassco [path] [options]")
+    printLogo
+    putStrLn ("Usage: klassco [options] [path]")
 
     putStrLn ("\n\nPath:")
     putStrLn ("  -t, --test \t\t small desc of what this thing do.")
     putStrLn ("  -m, --mode \t\t small desc of what this thing do.")
 
     putStrLn ("\nOptions:")
-    putStrLn ("  -m, --min INTEGER \t\t Minimum number of class" ++
+    putStrLn ("  -m, --min INTEGER \t minimum number of class " ++
               "combinations to check for (Default: 2)")
 
     putStrLn ("  -m, --mode \t\t small desc of what this thing do.")
     putStrLn ("  -h, --help \t\t show usage and all options.")
-    putStrLn ("  -s, --summary \t\t show usage and all options.")
-    putStrLn ("  -v, --version \t\t display the current version.")
+    putStrLn ("  -s, --summary \t show usage and all options.")
+    putStrLn ("  -v, --version \t display the current version.")
 
     putStrLn ("\n\nDocumentation can be found at " ++ repoUrl)
 
@@ -114,7 +114,7 @@ main =
 
   where handleArgs :: ([CliFlag], Maybe String) -> IO ()
         handleArgs (options, userPath)
-          | Fhelp `elem` options = printHelp False
+          | Fhelp `elem` options = printHelp
           | userPath == Nothing = printMessage forgotPathMsg
           | otherwise = do
               let defaultExt = ["html"]

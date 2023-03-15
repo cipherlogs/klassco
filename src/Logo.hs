@@ -1,4 +1,4 @@
-module Logo (logo) where
+module Logo (printLogo) where
 
 logoData :: [String]
 logoData =
@@ -14,5 +14,5 @@ logoData =
   ""
   ]
 
-logo :: IO ()
-logo = mapM_ putStrLn logoData
+printLogo :: IO ()
+printLogo = mapM_ putStrLn logoData
