@@ -11,6 +11,10 @@ import Lib
 import Msgs
 import Logo
 
+
+type ClassData = (FilePath, [[String]])
+type ClassDuplicates = (FilePath, [(String, Int)])
+
 -- todo
 -- when you will display the results of duplicated probably it would
 -- too much to display, by default. however add an option
@@ -21,11 +25,19 @@ printHelp =
     let repoUrl = "https://github.com/cipherlogs/Klassco"
 
     printLogo
-    putStrLn ("Usage: klassco [options] path")
 
-    putStrLn ("\n\npath:")
+    putStr ("extract all CSS classes (i.e tailwind) that ")
+    putStrLn ("were used,")
+    putStrLn ("analyze them and highlight all the duplicates,")
+    putStr ("then abstract it into a higher abstraction ")
+    putStrLn ("and make it reusable.")
+
+
+    putStrLn ("\n\nUsage: klassco [options] path")
+
+    putStrLn ("\npath:")
     putStrLn ("  the path to analyze and scan for duplicate CSS classes.")
-    putStr ("  the utility will automatically detect whether the path is ")
+    putStr ("  it will automatically detect whether the path is ")
     putStrLn ("a directory or a file.")
 
     putStrLn ("\n\noptions: [optional]")
@@ -35,6 +47,10 @@ printHelp =
     putStrLn ("\n  -e, --extensions ~ (default: \"html js jsx\")")
     putStrLn ("\tonly look for files with these extensions.")
     putStrLn ("\tseperate extensions with space.")
+
+    putStrLn ("\n  -s, --summary")
+    putStrLn ("\tgenerate a summary report of each file analyzed and how")
+    putStrLn ("\tduplicate combos were found.")
 
     putStrLn ("\n  -h, --help")
     putStrLn ("\tshow usage and all of Klassco options.")
@@ -57,7 +73,8 @@ data CliFlag =
   Fhelp |
   Fversion |
   Fmin |
-  Fextensions
+  Fextensions |
+  Fsummary
   deriving Eq
 
 parseFlag :: String -> Maybe CliFlag
@@ -66,6 +83,7 @@ parseFlag flag
   | flag == "-v" || flag == "--version" = Just Fversion
   | flag == "-m" || flag == "--min" = Just Fmin
   | flag == "-e" || flag == "--extensions" = Just Fextensions
+  | flag == "-s" || flag == "--summary" = Just Fsummary
   | otherwise = Nothing
 
 parseArgs :: [String] -> ([CliFlag], Maybe String)
@@ -118,10 +136,10 @@ parsePathWith exts path =
               files <- getFiles path
               return (Just $ filterByExt exts files)
 
-getClasses :: [FilePath] -> IO [(FilePath, [[String]])]
+getClasses :: [FilePath] -> IO [ClassData]
 getClasses = do mapM go
 
-  where go :: FilePath -> IO (FilePath, [[String]])
+  where go :: FilePath -> IO ClassData
         go file =
           do
             fileContent <- readFile file
@@ -135,6 +153,10 @@ printClasses (file, classes) =
     mapM_ printClass classes
 
   where printClass :: (String, Int) -> IO ()
+        printClass ("", count) =
+          do
+            putStrLn ("\tfound " ++ show count ++ " duplicates.")
+
         printClass (classNames, count) =
           do
             putStrLn ("\n\t" ++ classNames)
@@ -142,6 +164,12 @@ printClasses (file, classes) =
 
 main :: IO ()
 main = getArgs >>= handleArgs
+
+data Spec = Spec {
+  minCombos :: Int,
+  summary :: (ClassDuplicates -> ClassDuplicates)
+}
+
 
 handleArgs :: [String] -> IO ()
 handleArgs args
@@ -155,8 +183,10 @@ handleArgs args
 
       let exts = maybe [] words $ getExtVal args :: [String]
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
+
       let specs = Spec {
-          minCombos = minCombo
+          minCombos = minCombo,
+          summary = Fsummary `elem` options ? (summarize, id)
        }
 
       parsedPath <- parsePathWith exts (fromJust userPath)
@@ -166,8 +196,9 @@ handleArgs args
             (parsedPath)
   where (options, userPath) = parseArgs args
 
+        summarize :: ClassDuplicates -> ClassDuplicates
+        summarize (file, xs) = (file, [("", length xs)])
 
-data Spec = Spec {minCombos :: Int}
 
 getDuplicates :: Int -> [[String]] -> [(String, Int)]
 getDuplicates min rawData = findDuplicates combos rawData
@@ -178,6 +209,6 @@ getDuplicates min rawData = findDuplicates combos rawData
       . getCombos min
       . getUniqClasses $ rawData
 
-process :: Spec -> (FilePath, [[String]]) -> (FilePath, [(String, Int)])
+process :: Spec -> ClassData -> ClassDuplicates
 process spec (file, rawData) =
-  (file, getDuplicates (minCombos spec) rawData)
+  summary spec $ (file, getDuplicates (minCombos spec) rawData)
