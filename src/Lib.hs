@@ -96,7 +96,7 @@ getClassNames =
 
 
 myCombos :: [[String]]
-myCombos = splitBySpace . getCombos 1 . getUniqClasses $ rawData
+myCombos = splitBySpace . getCombos 2 . getUniqClasses $ rawData
 
 rawData :: [[String]]
 rawData =
@@ -110,6 +110,7 @@ rawData =
 myFilteredCombo = filter' [isUniq] myCombos
 
 -- main :: IO ()
+-- main = print myCombos
 -- main = do
   -- let html = "<div class=\"name1 name2\"></div><p class=\"name-3\"></p>"
   -- print (getClassNames html)

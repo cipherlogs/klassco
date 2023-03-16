@@ -3,14 +3,18 @@ module Main where
 import System.Environment
 import System.Directory
 import System.FilePath ((</>))
-import Control.Monad ((<=<))
+import Control.Monad ((<=<), (>=>))
 import Data.List (isSuffixOf, isPrefixOf)
 import Data.Maybe
+import Text.Read
 import Lib
 import Msgs
 import Logo
 
-
+-- todo
+-- when you will display the results of duplicated probably it would
+-- too much to display, by default. however add an option
+-- like git log -3 to only show the top 3
 printHelp :: IO ()
 printHelp =
   do
@@ -123,34 +127,57 @@ getClasses = do mapM go
             fileContent <- readFile file
             return (file, getClassNames fileContent)
 
+printClasses :: (FilePath, [(String, Int)]) -> IO ()
+printClasses (file, classes) =
+  do
+    putStr ("\n+ ")
+    putStrLn (file ++ ":")
+    mapM_ printClass classes
+
+  where printClass :: (String, Int) -> IO ()
+        printClass (classNames, count) =
+          do
+            putStrLn ("\n\t" ++ classNames)
+            putStrLn ("\tduplicated " ++ show count ++ " times.")
 
 main :: IO ()
 main = getArgs >>= handleArgs
 
+handleArgs :: [String] -> IO ()
+handleArgs args
+  | Fhelp `elem` options = printHelp
+  | Fversion `elem` options = putStrLn ("Klassco version: 7.1.0")
+  | userPath == Nothing = printMessage forgotPathMsg
+  | otherwise =
+    do
+      let getExtVal = getValOf ["-e", "--extensions"]
+      let getMinVal = getValOf ["-m", "--min"] >=> readMaybe
+
+      let exts = maybe [] words $ getExtVal args :: [String]
+      let minCombo = fromMaybe 2 $ getMinVal args :: Int
+      let specs = Spec {
+          minCombos = minCombo
+       }
+
+      parsedPath <- parsePathWith exts (fromJust userPath)
+
+      maybe (printMessage badPathMsg)
+            (mapM_ (printClasses . process specs) <=< getClasses)
+            (parsedPath)
+  where (options, userPath) = parseArgs args
+
+
+data Spec = Spec {minCombos :: Int}
+
+getDuplicates :: Int -> [[String]] -> [(String, Int)]
+getDuplicates min rawData = findDuplicates combos rawData
   where
-    handleArgs :: [String] -> IO ()
-    handleArgs args
-      | Fhelp `elem` options = printHelp
-      | Fversion `elem` options = putStrLn ("Klassco version: 7.1.0")
-      | userPath == Nothing = printMessage forgotPathMsg
-      | otherwise =
-        do
-          let exts = maybe (["txt"])
-                           (words)
-                           (getValOf ["-e", "--extensions"] args)
+    combos =
+      filter' [isUniq]
+      . splitBySpace
+      . getCombos min
+      . getUniqClasses $ rawData
 
-          parsedPath <- parsePathWith exts (fromJust userPath)
-
-          maybe (printMessage badPathMsg)
-                (mapM_ (putStrLn . show) <=< getClasses)
-                (parsedPath)
-
-      where (options, userPath) = parseArgs args
-
-    forgotPathMsg :: String
-    forgotPathMsg =
-      "Uh-Oh! It looks like you missed the path parameter."
-
-    badPathMsg :: String
-    badPathMsg =
-      "Error: the specified path does not exists or is invalid."
+process :: Spec -> (FilePath, [[String]]) -> (FilePath, [(String, Int)])
+process spec (file, rawData) =
+  (file, getDuplicates (minCombos spec) rawData)
