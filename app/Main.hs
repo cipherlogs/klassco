@@ -7,6 +7,7 @@ import Control.Monad ((<=<))
 import Data.List (isSuffixOf, isPrefixOf)
 import Data.Maybe
 import Lib
+import Msgs
 import Logo
 
 

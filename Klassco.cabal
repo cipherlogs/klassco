@@ -27,6 +27,7 @@ library
   exposed-modules:
       Lib
       Logo
+      Msgs
   other-modules:
       Paths_Klassco
   hs-source-dirs:
