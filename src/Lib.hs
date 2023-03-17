@@ -38,6 +38,14 @@ getCombos min xs
              else x ++ " " ++ y
 
 
+data Sort = Asc | Desc deriving Eq
+
+sortBy :: Ord b => Sort -> (a -> b) -> [a] -> [a]
+sortBy mode f xs
+  | mode == Asc = sortOn f xs
+  | mode == Desc = reverse . sortOn f $ xs
+
+
 splitBySpace :: [String] -> [[String]]
 splitBySpace = map words
 
