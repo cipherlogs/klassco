@@ -4,7 +4,7 @@ import System.Environment
 import System.Directory
 import System.FilePath ((</>))
 import Control.Monad ((<=<), (>=>))
-import Data.List (isSuffixOf, isPrefixOf)
+import Data.List (isSuffixOf, isPrefixOf, sortOn)
 import Data.Maybe
 import Text.Read
 import Lib
@@ -16,8 +16,6 @@ type ClassData = (FilePath, [[String]])
 type ClassDuplicates = (FilePath, [(String, Int)])
 
 -- todo
--- when you will display the results of duplicated probably it would
--- too much to display, by default. however add an option
 -- like git log -3 to only show the top 3
 printHelp :: IO ()
 printHelp =
@@ -48,6 +46,12 @@ printHelp =
     putStrLn ("\tonly look for files with these extensions.")
     putStrLn ("\tseperate extensions with space.")
 
+    putStrLn ("\n      --asc")
+    putStrLn ("\tsorts the result in ascending order.")
+
+    putStrLn ("\n      --desc")
+    putStrLn ("\tsorts the result in descending order.")
+
     putStrLn ("\n  -s, --summary")
     putStrLn ("\tgenerate a summary report of each file analyzed and how")
     putStrLn ("\tduplicate combos were found.")
@@ -74,7 +78,9 @@ data CliFlag =
   Fversion |
   Fmin |
   Fextensions |
-  Fsummary
+  Fsummary |
+  Fasc |
+  Fdesc
   deriving Eq
 
 parseFlag :: String -> Maybe CliFlag
@@ -84,6 +90,8 @@ parseFlag flag
   | flag == "-m" || flag == "--min" = Just Fmin
   | flag == "-e" || flag == "--extensions" = Just Fextensions
   | flag == "-s" || flag == "--summary" = Just Fsummary
+  | flag == "--asc" = Just Fasc
+  | flag == "--desc" = Just Fdesc
   | otherwise = Nothing
 
 parseArgs :: [String] -> ([CliFlag], Maybe String)
@@ -145,7 +153,7 @@ getClasses = do mapM go
             fileContent <- readFile file
             return (file, getClassNames fileContent)
 
-printClasses :: (FilePath, [(String, Int)]) -> IO ()
+printClasses :: ClassDuplicates -> IO ()
 printClasses (file, classes) =
   do
     putStr ("\n+ ")
@@ -162,14 +170,14 @@ printClasses (file, classes) =
             putStrLn ("\n\t" ++ classNames)
             putStrLn ("\tduplicated " ++ show count ++ " times.")
 
-main :: IO ()
-main = getArgs >>= handleArgs
-
 data Spec = Spec {
   minCombos :: Int,
-  summary :: (ClassDuplicates -> ClassDuplicates)
+  summary :: (ClassDuplicates -> ClassDuplicates),
+  sort :: [(String, Int)] -> [(String, Int)]
 }
 
+main :: IO ()
+main = getArgs >>= handleArgs
 
 handleArgs :: [String] -> IO ()
 handleArgs args
@@ -184,20 +192,44 @@ handleArgs args
       let exts = maybe [] words $ getExtVal args :: [String]
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
 
+      let sortMethod
+            | Fasc `elem` options = sortBy Asc
+            | Fdesc `elem` options = sortBy Desc
+            | otherwise = const id
+
       let specs = Spec {
           minCombos = minCombo,
-          summary = Fsummary `elem` options ? (summarize, id)
+          summary = Fsummary `elem` options ? (summarize, id),
+          sort = sortMethod (\(_, x) -> x)
        }
 
-      parsedPath <- parsePathWith exts (fromJust userPath)
+      let toOutput =
+            mapM_ printClasses
+            . (\x -> isSummarized x ? (sortMethod getSummaryCount x, x))
+            . fmap (process specs)
 
+      parsedPath <- parsePathWith exts (fromJust userPath)
       maybe (printMessage badPathMsg)
-            (mapM_ (printClasses . process specs) <=< getClasses)
+            (toOutput <=< getClasses)
             (parsedPath)
+
   where (options, userPath) = parseArgs args
 
         summarize :: ClassDuplicates -> ClassDuplicates
         summarize (file, xs) = (file, [("", length xs)])
+
+        isSummarized :: [ClassDuplicates] -> Bool
+        isSummarized =
+          (== 1)
+          . length
+          . fromMaybe []
+          . fmap snd
+          . listToMaybe
+
+        getSummaryCount :: ClassDuplicates -> Int
+        getSummaryCount (file, xs)
+          | length xs == 1 = (snd . head $ xs)
+          | otherwise = (snd . head $ xs)
 
 
 getDuplicates :: Int -> [[String]] -> [(String, Int)]
@@ -211,4 +243,6 @@ getDuplicates min rawData = findDuplicates combos rawData
 
 process :: Spec -> ClassData -> ClassDuplicates
 process spec (file, rawData) =
-  summary spec $ (file, getDuplicates (minCombos spec) rawData)
+  (\(file, classData) -> (file, sort spec classData))
+  . summary spec
+  $ (file, getDuplicates (minCombos spec) rawData)
