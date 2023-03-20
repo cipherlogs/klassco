@@ -22,21 +22,23 @@ thrush x f = f x
 nestMap :: (a -> a -> a) -> [a] -> [a] -> [a]
 nestMap f xs ys = concatMap (\x -> map (\y -> f x y) ys) xs
 
+takeEnd :: Int -> [a] -> [a]
+takeEnd n xs = reverse . take n . reverse $ xs
+
+comboProduct :: [String] -> [String] -> [String]
+comboProduct xs ys = nub $ nestMap joinWithSpace xs ys
+
+joinWithSpace :: String -> String -> String
+joinWithSpace x y =
+  if x > y
+     then y ++ " " ++ x
+     else x ++ " " ++ y
+
 getCombos :: Int -> [String] -> [String]
 getCombos min xs
   | min == 0 = []
   | min == 1 = xs
   | otherwise = comboProduct (getCombos (min - 1) xs) xs
-
-  where comboProduct :: [String] -> [String] -> [String]
-        comboProduct xs ys = nub $ nestMap joinWithSpace xs ys
-
-        joinWithSpace :: String -> String -> String
-        joinWithSpace x y =
-          if x > y
-             then y ++ " " ++ x
-             else x ++ " " ++ y
-
 
 data Sort = Asc | Desc deriving Eq
 
@@ -103,8 +105,37 @@ getClassNames =
     regexPattern = "[class|className]=\"([^\"]*)\""
 
 
+sampleData :: [String]
+sampleData = ["a", "b", "c", "d", "e"]
+
+genCombos :: Int -> [String] -> [[String]]
+genCombos 0 _ = []
+genCombos 1 xs = map (: []) xs
+genCombos n xs =
+  concatMap (\(x, i) -> prod' [x] (genCombos (n-1) (drop i xs)))
+  . zipWith (,) xs
+  $ [1..length xs]
+
+prod' :: [String] -> [[String]] -> [[String]]
+prod' xs ys = map (xs ++) ys
+
+adjacentPairs :: Int -> [a] -> [[a]]
+adjacentPairs _ [] = []
+adjacentPairs size xs | size > length xs = []
+adjacentPairs size xs = take size xs : adjacentPairs size (tail xs)
+
 myCombos :: [[String]]
-myCombos = splitBySpace . getCombos 2 . getUniqClasses $ rawData
+myCombos =
+  filter' [isUniq]
+  . splitBySpace
+  . getCombos 2
+  . getUniqClasses
+  $ rawData
+
+-- newCombos :: [[String]]
+-- newCombos = genCombos 2 . getUniqClasses $ rawData
+
+
 
 rawData :: [[String]]
 rawData =
@@ -115,12 +146,14 @@ rawData =
     ["class2", "class3", "class4"]
   ]
 
-myFilteredCombo = filter' [isUniq] myCombos
+combo1 =
+  filter' [isUniq]
+  . splitBySpace
+  . getCombos 3
+  $ sampleData
+
+combo2 = genCombos 3 $ sampleData
 
 -- main :: IO ()
--- main = print myCombos
--- main = do
-  -- let html = "<div class=\"name1 name2\"></div><p class=\"name-3\"></p>"
-  -- print (getClassNames html)
--- main = print (findDuplicates myFilteredCombo rawData)
-
+-- main = print (combo1, combo2)
+-- main = print (length combo1, length combo2)
