@@ -4,7 +4,7 @@ import System.Environment
 import System.Directory
 import System.FilePath ((</>))
 import Control.Monad ((<=<), (>=>))
-import Data.List (isSuffixOf, isPrefixOf, sortOn)
+import Data.List (isSuffixOf, isPrefixOf, sortOn, intercalate)
 import Data.Maybe
 import Text.Read
 import Lib
@@ -15,8 +15,6 @@ import Logo
 type ClassData = (FilePath, [[String]])
 type ClassDuplicates = (FilePath, [(String, Int)])
 
--- todo
--- like git log -3 to only show the top 3
 printHelp :: IO ()
 printHelp =
   do
@@ -52,6 +50,9 @@ printHelp =
     putStrLn ("\n      --desc")
     putStrLn ("\tsorts the result in descending order.")
 
+    putStrLn ("\n  -d, --display INTEGER")
+    putStrLn ("\tdisplay n lines from the output, 0 to show all.")
+
     putStrLn ("\n  -s, --summary")
     putStrLn ("\tgenerate a summary report of each file analyzed and how")
     putStrLn ("\tduplicate combos were found.")
@@ -80,7 +81,8 @@ data CliFlag =
   Fextensions |
   Fsummary |
   Fasc |
-  Fdesc
+  Fdesc |
+  Fdisplay
   deriving Eq
 
 parseFlag :: String -> Maybe CliFlag
@@ -90,6 +92,7 @@ parseFlag flag
   | flag == "-m" || flag == "--min" = Just Fmin
   | flag == "-e" || flag == "--extensions" = Just Fextensions
   | flag == "-s" || flag == "--summary" = Just Fsummary
+  | flag == "-d" || flag == "--display" = Just Fdisplay
   | flag == "--asc" = Just Fasc
   | flag == "--desc" = Just Fdesc
   | otherwise = Nothing
@@ -188,9 +191,14 @@ handleArgs args
     do
       let getExtVal = getValOf ["-e", "--extensions"]
       let getMinVal = getValOf ["-m", "--min"] >=> readMaybe
-
+      let getDisplayVal = getValOf ["-d", "--display"] >=> readMaybe
       let exts = maybe [] words $ getExtVal args :: [String]
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
+      let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
+
+      let displayN n
+            | n == 0 = id
+            | otherwise = (\(file, xs) -> (file, take n xs))
 
       let sortMethod
             | Fasc `elem` options = sortBy Asc
@@ -205,6 +213,7 @@ handleArgs args
 
       let toOutput =
             mapM_ printClasses
+            . fmap (displayN maxDisplay)
             . (\x -> isSummarized x ? (sortMethod getSummaryCount x, x))
             . fmap (process specs)
 
