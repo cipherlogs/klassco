@@ -242,13 +242,17 @@ handleArgs args
 
 
 getDuplicates :: Int -> [[String]] -> [(String, Int)]
+-- this to show when we try to get all duplicates together
+-- getDuplicates min rawData = [(intercalate " " (concat combos), 2)]
 getDuplicates min rawData = findDuplicates combos rawData
   where
-    combos =
-      filter' [isUniq]
-      . splitBySpace
-      . getCombos min
-      . getUniqClasses $ rawData
+    combos = genCombos min . getUniqClasses $ rawData
+    -- combos =
+    --   filter' [isUniq]
+    --   . splitBySpace
+    --   . getCombos min
+    --   . getUniqClasses
+    --   $ rawData
 
 process :: Spec -> ClassData -> ClassDuplicates
 process spec (file, rawData) =
