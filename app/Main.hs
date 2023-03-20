@@ -51,7 +51,10 @@ printHelp =
     putStrLn ("\tsorts the result in descending order.")
 
     putStrLn ("\n  -d, --display INTEGER")
-    putStrLn ("\tdisplay n lines from the output, 0 to show all.")
+    putStrLn ("\tdisplay n lines from the output.")
+    putStrLn ("\t\t0 to show all.")
+    putStrLn ("\t\t+n to show the top n lines.")
+    putStrLn ("\t\t-n to show the bottom n lines.")
 
     putStrLn ("\n  -s, --summary")
     putStrLn ("\tgenerate a summary report of each file analyzed and how")
@@ -196,9 +199,12 @@ handleArgs args
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
       let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
 
+      putStrLn (show maxDisplay)
+
       let displayN n
             | n == 0 = id
-            | otherwise = (\(file, xs) -> (file, take n xs))
+            | n > 0 = (\(file, xs) -> (file, take n xs))
+            | otherwise = (\(file, xs) -> (file, drop (length xs + n) xs))
 
       let sortMethod
             | Fasc `elem` options = sortBy Asc
