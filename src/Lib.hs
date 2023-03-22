@@ -14,7 +14,7 @@ infixr 9 .:
 
 nth :: a -> Int -> [a] -> a
 nth fallback _ [] = fallback
-nth fallback index xs = xs !! index
+nth _ index xs = xs !! index
 
 thrush :: a -> (a -> b) -> b
 thrush x f = f x
@@ -35,10 +35,10 @@ joinWithSpace x y =
      else x ++ " " ++ y
 
 getCombos :: Int -> [String] -> [String]
-getCombos min xs
-  | min == 0 = []
-  | min == 1 = xs
-  | otherwise = comboProduct (getCombos (min - 1) xs) xs
+getCombos minLenght xs
+  | minLenght == 0 = []
+  | minLenght == 1 = xs
+  | otherwise = comboProduct (getCombos (minLenght - 1) xs) xs
 
 data Sort = Asc | Desc deriving Eq
 
@@ -104,10 +104,6 @@ getClassNames =
     regexPattern :: String
     regexPattern = "[class|className]=\"([^\"]*)\""
 
-
-sampleData :: [String]
-sampleData = ["a", "b", "c", "d", "e"]
-
 genCombos :: Int -> [String] -> [[String]]
 genCombos 0 _ = []
 genCombos 1 xs = map (: []) xs
@@ -135,7 +131,8 @@ myCombos =
 -- newCombos :: [[String]]
 -- newCombos = genCombos 2 . getUniqClasses $ rawData
 
-
+sampleData :: [String]
+sampleData = ["a", "b", "c", "d"]
 
 rawData :: [[String]]
 rawData =
@@ -155,5 +152,4 @@ combo1 =
 combo2 = genCombos 3 $ sampleData
 
 -- main :: IO ()
--- main = print (combo1, combo2)
--- main = print (length combo1, length combo2)
+-- main = print (genCombos 3 sampleData)

@@ -4,7 +4,7 @@ import System.Environment
 import System.Directory
 import System.FilePath ((</>))
 import Control.Monad ((<=<), (>=>))
-import Data.List (isSuffixOf, isPrefixOf, sortOn, intercalate)
+import Data.List (isSuffixOf, isPrefixOf)
 import Data.Maybe
 import Text.Read
 import Lib
@@ -188,7 +188,7 @@ main = getArgs >>= handleArgs
 handleArgs :: [String] -> IO ()
 handleArgs args
   | Fhelp `elem` options = printHelp
-  | Fversion `elem` options = putStrLn ("Klassco version: 7.1.0")
+  | Fversion `elem` options = putStrLn ("Klassco version: 0.0.1")
   | userPath == Nothing = printMessage forgotPathMsg
   | otherwise =
     do
@@ -198,8 +198,6 @@ handleArgs args
       let exts = maybe [] words $ getExtVal args :: [String]
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
       let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
-
-      putStrLn (show maxDisplay)
 
       let displayN n
             | n == 0 = id
@@ -242,7 +240,7 @@ handleArgs args
           . listToMaybe
 
         getSummaryCount :: ClassDuplicates -> Int
-        getSummaryCount (file, xs)
+        getSummaryCount (_, xs)
           | length xs == 1 = (snd . head $ xs)
           | otherwise = (snd . head $ xs)
 
