@@ -4,7 +4,7 @@ import System.Environment
 import System.Directory
 import System.FilePath ((</>))
 import Control.Monad ((<=<), (>=>))
-import Data.List (isSuffixOf, isPrefixOf)
+import Data.List (isSuffixOf, isPrefixOf, isInfixOf)
 import Data.Maybe
 import Text.Read
 import Lib
@@ -40,15 +40,24 @@ printHelp =
     putStrLn ("  -m, --min INTEGER ~ (default: 2)")
     putStrLn ("\tminimum number of class combinations to check for.")
 
-    putStrLn ("\n  -e, --extensions ~ (default: \"html js jsx\")")
-    putStrLn ("\tonly look for files with these extensions.")
-    putStrLn ("\tseperate extensions with space.")
-
     putStrLn ("\n      --asc")
     putStrLn ("\tsorts the result in ascending order.")
 
     putStrLn ("\n      --desc")
     putStrLn ("\tsorts the result in descending order.")
+
+    putStrLn ("\n  -e, --extensions ~ (default: \"html js jsx\")")
+    putStrLn ("\tonly look for files with these extensions.")
+    putStrLn ("\tseperate extensions with space.")
+
+    putStrLn ("\n  -f, --find ~ (default: all)")
+    putStrLn ("\tfind duplicated classes with selected prefixes/infixes.")
+    putStrLn ("\t-f \"dark: md: header-\" seperate with space.")
+    putStrLn ("\t-f all -> finds all.")
+    putStrLn ("\t-f none -> finds classes with no prefixes.")
+    putStrLn ("\t-f \"dark:\" -> selects classes that contain dark:")
+    putStrLn ("\t-f \"dark:md:\" -> selects classes that contain both.")
+    putStrLn ("\t   \"dark:md:\"==\"md:dark:\" the order is ignored! \n")
 
     putStrLn ("\n  -d, --display INTEGER")
     putStrLn ("\tdisplay n lines from the output.")
@@ -85,7 +94,8 @@ data CliFlag =
   Fsummary |
   Fasc |
   Fdesc |
-  Fdisplay
+  Fdisplay |
+  Ffind
   deriving Eq
 
 parseFlag :: String -> Maybe CliFlag
@@ -96,6 +106,7 @@ parseFlag flag
   | flag == "-e" || flag == "--extensions" = Just Fextensions
   | flag == "-s" || flag == "--summary" = Just Fsummary
   | flag == "-d" || flag == "--display" = Just Fdisplay
+  | flag == "-f" || flag == "--find" = Just Ffind
   | flag == "--asc" = Just Fasc
   | flag == "--desc" = Just Fdesc
   | otherwise = Nothing
@@ -179,7 +190,8 @@ printClasses (file, classes) =
 data Spec = Spec {
   minCombos :: Int,
   summary :: (ClassDuplicates -> ClassDuplicates),
-  sort :: [(String, Int)] -> [(String, Int)]
+  sort :: [(String, Int)] -> [(String, Int)],
+  specFilter :: String -> Bool
 }
 
 main :: IO ()
@@ -188,14 +200,16 @@ main = getArgs >>= handleArgs
 handleArgs :: [String] -> IO ()
 handleArgs args
   | Fhelp `elem` options = printHelp
-  | Fversion `elem` options = putStrLn ("Klassco version: 0.0.1")
+  | Fversion `elem` options = putStrLn ("Klassco version: 0.01")
   | userPath == Nothing = printMessage forgotPathMsg
   | otherwise =
     do
       let getExtVal = getValOf ["-e", "--extensions"]
+      let getPrefixesVal = getValOf ["-f", "--find"]
       let getMinVal = getValOf ["-m", "--min"] >=> readMaybe
       let getDisplayVal = getValOf ["-d", "--display"] >=> readMaybe
       let exts = maybe [] words $ getExtVal args :: [String]
+      let prefixes = maybe [] words $ getPrefixesVal args :: [String]
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
       let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
 
@@ -209,10 +223,20 @@ handleArgs args
             | Fdesc `elem` options = sortBy Desc
             | otherwise = const id
 
+      let filterMethod opts
+            | opts == [] = const (True)
+            | opts == ["all"] = const (True)
+            | opts == ["none"] = not . isInfixOf ":"
+            | length opts >= 1 =
+                \x -> any (all (`isInfixOf` x) . splitWith ':') opts
+
+            | otherwise = const (True)
+
       let specs = Spec {
           minCombos = minCombo,
           summary = Fsummary `elem` options ? (summarize, id),
-          sort = sortMethod (\(_, x) -> x)
+          sort = sortMethod (\(_, x) -> x),
+          specFilter = filterMethod prefixes
        }
 
       let toOutput =
@@ -227,7 +251,6 @@ handleArgs args
             (parsedPath)
 
   where (options, userPath) = parseArgs args
-
         summarize :: ClassDuplicates -> ClassDuplicates
         summarize (file, xs) = (file, [("", length xs)])
 
