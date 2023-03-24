@@ -120,6 +120,14 @@ adjacentPairs _ [] = []
 adjacentPairs size xs | size > length xs = []
 adjacentPairs size xs = take size xs : adjacentPairs size (tail xs)
 
+splitWith :: Eq a => a -> [a] -> [[a]]
+splitWith seperator = foldr go [[]]
+
+  where
+    go char acc@(x:xs)
+      | char == seperator = [seperator] : acc
+      | otherwise = (char : x) : xs
+
 myCombos :: [[String]]
 myCombos =
   filter' [isUniq]
@@ -151,5 +159,6 @@ combo1 =
 
 combo2 = genCombos 3 $ sampleData
 
+
 -- main :: IO ()
--- main = print (genCombos 3 sampleData)
+-- main = print ""
