@@ -2,6 +2,7 @@ module Lib where
 
 import Data.List
 import Data.Bool
+import Data.Foldable (foldl', foldr')
 import Text.Regex.TDFA
 
 infixl 1 ?
@@ -66,7 +67,7 @@ countOccurences combos target = map countAndFormat combos
         countAndFormat x = (concatClassNames x, countDuplicates x target)
 
         countDuplicates :: [String] -> [[String]] -> Int
-        countDuplicates x xs = foldl (incReducer x) 0 xs
+        countDuplicates x xs = foldl' (incReducer x) 0 xs
 
         incReducer :: [String] -> Int -> [String] -> Int
         incReducer sublist counter list =
@@ -121,7 +122,7 @@ adjacentPairs size xs | size > length xs = []
 adjacentPairs size xs = take size xs : adjacentPairs size (tail xs)
 
 splitWith :: Eq a => a -> [a] -> [[a]]
-splitWith seperator = foldr go [[]]
+splitWith seperator = foldr' go [[]]
 
   where
     go char acc@(x:xs)
