@@ -268,21 +268,18 @@ handleArgs args
           | otherwise = (snd . head $ xs)
 
 
-getDuplicates :: Int -> [[String]] -> [(String, Int)]
--- this to show when we try to get all duplicates together
--- getDuplicates min rawData = [(intercalate " " (concat combos), 2)]
-getDuplicates min rawData = findDuplicates combos rawData
-  where
-    combos = genCombos min . getUniqClasses $ rawData
-    -- combos =
-    --   filter' [isUniq]
-    --   . splitBySpace
-    --   . getCombos min
-    --   . getUniqClasses
-    --   $ rawData
+getDuplicates :: [[String]] -> [[String]] -> [(String, Int)]
+getDuplicates combos rawData = findDuplicates combos rawData
 
+-- add a way to only scan duplicates across multiple files not just
+-- single files, useful for frameworks like react and all
 process :: Spec -> ClassData -> ClassDuplicates
 process spec (file, rawData) =
+  let numCombo = minCombos spec
+      filteredData = map (filter (specFilter spec)) rawData
+      uniqClasses = getUniqClasses filteredData
+      combos = genCombos numCombo uniqClasses
+  in
   (\(file, classData) -> (file, sort spec classData))
   . summary spec
-  $ (file, getDuplicates (minCombos spec) rawData)
+  $ (file, getDuplicates combos filteredData)
