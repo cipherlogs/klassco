@@ -5,6 +5,7 @@ import System.Directory
 import System.FilePath ((</>))
 import Control.Monad ((<=<), (>=>))
 import Data.List (isSuffixOf, isPrefixOf, isInfixOf)
+import Data.Foldable (foldl')
 import Data.Maybe
 import Text.Read
 import Lib
@@ -67,7 +68,15 @@ printHelp =
 
     putStrLn ("\n  -s, --summary")
     putStrLn ("\tgenerate a summary report of each file analyzed and how")
-    putStrLn ("\tduplicate combos were found.")
+    putStrLn ("\tmany duplicate combos were found.")
+
+    putStrLn ("\n  -t, --total")
+    putStrLn ("\tcalculate the total number of all duplicated classes.")
+
+    putStrLn ("\n\twhen \"-t -s\" flags are used together, the total will")
+    putStrLn ("\tbe the number of all duplicated combos that were found")
+    putStrLn ("\tacross all files.")
+    putStrLn ("\tremember one combo can be duplicated many times!.")
 
     putStrLn ("\n  -h, --help")
     putStrLn ("\tshow usage and all of Klassco options.")
@@ -95,7 +104,8 @@ data CliFlag =
   Fasc |
   Fdesc |
   Fdisplay |
-  Ffind
+  Ffind |
+  Ftotal
   deriving Eq
 
 parseFlag :: String -> Maybe CliFlag
@@ -107,6 +117,7 @@ parseFlag flag
   | flag == "-s" || flag == "--summary" = Just Fsummary
   | flag == "-d" || flag == "--display" = Just Fdisplay
   | flag == "-f" || flag == "--find" = Just Ffind
+  | flag == "-t" || flag == "--total" = Just Ftotal
   | flag == "--asc" = Just Fasc
   | flag == "--desc" = Just Fdesc
   | otherwise = Nothing
@@ -187,6 +198,20 @@ printClasses (file, classes) =
             putStrLn ("\n\t" ++ classNames)
             putStrLn ("\tduplicated " ++ show count ++ " times.")
 
+printTotal :: [ClassDuplicates] -> IO ()
+printTotal xs =
+  do
+    let total = sumIt xs
+    putStrLn ("\n---")
+    putStrLn ("Found " ++ show total ++ " in total.")
+
+    where
+      sumIt :: [ClassDuplicates] -> Int
+      sumIt = foldl' f 0
+
+      f acc (_, ys) = acc + f' ys
+      f' = foldl' (\acc (_, x) -> acc + x) 0
+
 data Spec = Spec {
   minCombos :: Int,
   summary :: (ClassDuplicates -> ClassDuplicates),
@@ -212,6 +237,7 @@ handleArgs args
       let prefixes = maybe [] words $ getPrefixesVal args :: [String]
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
       let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
+      let canShowSummary = Fsummary `elem` options
 
       let displayN n
             | n == 0 = id
@@ -234,20 +260,29 @@ handleArgs args
 
       let specs = Spec {
           minCombos = minCombo,
-          summary = Fsummary `elem` options ? (summarize, id),
+          summary = canShowSummary ? (summarize, id),
           sort = sortMethod (\(_, x) -> x),
           specFilter = filterMethod prefixes
        }
 
-      let toOutput =
-            mapM_ printClasses
-            . fmap (displayN maxDisplay)
+      let calcOutput =
+            fmap (displayN maxDisplay)
             . (\x -> isSummarized x ? (sortMethod getSummaryCount x, x))
             . fmap (process specs)
 
+      let toOutput xs =
+            do
+              let canShowTotal = Ftotal `elem` options
+              let shouldDisplayBoth = canShowTotal && canShowSummary
+
+              -- putStrLn "Good"
+              shouldDisplayBoth ? (putStrLn displayBothMsg, return ())
+              mapM_ printClasses xs
+              canShowTotal ? (printTotal xs, return ())
+
       parsedPath <- parsePathWith exts (fromJust userPath)
       maybe (printMessage badPathMsg)
-            (toOutput <=< getClasses)
+            ((toOutput . calcOutput) <=< getClasses)
             (parsedPath)
 
   where (options, userPath) = parseArgs args
