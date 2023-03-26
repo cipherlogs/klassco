@@ -4,10 +4,14 @@ import Data.List
 import Data.Bool
 import Data.Foldable (foldl', foldr')
 import Text.Regex.TDFA
+import Control.Monad (guard)
 
 infixl 1 ?
 (?) :: Bool -> (a, a) -> a
 (?) cond (x, y) = if cond then x else y
+
+maybeIf :: (a -> Bool) -> a -> Maybe a
+maybeIf p x = x <$ guard (p x)
 
 infixr 9 .:
 (.:) :: (c -> d) -> (a -> b -> c) -> a -> b -> d
