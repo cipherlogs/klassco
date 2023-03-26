@@ -4,7 +4,7 @@ import System.Environment
 import System.Directory
 import System.FilePath ((</>))
 import Control.Monad ((<=<), (>=>))
-import Data.List (isSuffixOf, isPrefixOf, isInfixOf)
+import Data.List (isSuffixOf, isPrefixOf, isInfixOf, nub)
 import Data.Foldable (foldl')
 import Data.Maybe
 import Text.Read
@@ -41,6 +41,11 @@ printHelp =
     putStrLn ("  -m, --min INTEGER ~ (default: 2)")
     putStrLn ("\tminimum number of class combinations to check for.")
 
+    putStrLn ("\n      --global")
+    putStrLn ("\tsearch for duplicates by comparing classes across all")
+    putStrLn ("\tfiles in the project. allowing you to identify where you")
+    putStrLn ("\thave repeated yourself in other places.")
+
     putStrLn ("\n      --asc")
     putStrLn ("\tsorts the result in ascending order.")
 
@@ -52,13 +57,13 @@ printHelp =
     putStrLn ("\tseperate extensions with space.")
 
     putStrLn ("\n  -f, --find ~ (default: all)")
-    putStrLn ("\tfind duplicated classes with selected prefixes/infixes.")
+    putStrLn ("\tfind duplicated classes with selected prefixes/infixes.\n")
     putStrLn ("\t-f \"dark: md: header-\" seperate with space.")
     putStrLn ("\t-f all -> finds all.")
     putStrLn ("\t-f none -> finds classes with no prefixes.")
     putStrLn ("\t-f \"dark:\" -> selects classes that contain dark:")
     putStrLn ("\t-f \"dark:md:\" -> selects classes that contain both.")
-    putStrLn ("\t   \"dark:md:\"==\"md:dark:\" the order is ignored! \n")
+    putStrLn ("\t   \"dark:md:\"==\"md:dark:\" the order is ignored!")
 
     putStrLn ("\n  -d, --display INTEGER")
     putStrLn ("\tdisplay n lines from the output.")
@@ -105,7 +110,8 @@ data CliFlag =
   Fdesc |
   Fdisplay |
   Ffind |
-  Ftotal
+  Ftotal |
+  Fglobal
   deriving Eq
 
 parseFlag :: String -> Maybe CliFlag
@@ -118,6 +124,7 @@ parseFlag flag
   | flag == "-d" || flag == "--display" = Just Fdisplay
   | flag == "-f" || flag == "--find" = Just Ffind
   | flag == "-t" || flag == "--total" = Just Ftotal
+  | flag == "--global" = Just Fglobal
   | flag == "--asc" = Just Fasc
   | flag == "--desc" = Just Fdesc
   | otherwise = Nothing
@@ -195,7 +202,7 @@ printClasses (file, classes) =
 
         printClass (classNames, count) =
           do
-            putStrLn ("\n\t" ++ classNames)
+            putStrLn ("\t" ++ classNames)
             putStrLn ("\tduplicated " ++ show count ++ " times.")
 
 printTotal :: [ClassDuplicates] -> IO ()
@@ -216,7 +223,8 @@ data Spec = Spec {
   minCombos :: Int,
   summary :: (ClassDuplicates -> ClassDuplicates),
   sort :: [(String, Int)] -> [(String, Int)],
-  specFilter :: String -> Bool
+  specFilter :: String -> Bool,
+  getDuplicates :: [[String]] -> [[String]] -> [(String, Int)]
 }
 
 main :: IO ()
@@ -238,6 +246,7 @@ handleArgs args
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
       let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
       let canShowSummary = Fsummary `elem` options
+      let canGlobalSeach = Fglobal `elem` options
 
       let displayN n
             | n == 0 = id
@@ -262,12 +271,15 @@ handleArgs args
           minCombos = minCombo,
           summary = canShowSummary ? (summarize, id),
           sort = sortMethod (\(_, x) -> x),
-          specFilter = filterMethod prefixes
+          specFilter = filterMethod prefixes,
+          getDuplicates =
+            canGlobalSeach ? (findDuplicates 1, findDuplicates 2)
        }
 
       let calcOutput =
             fmap (displayN maxDisplay)
             . (\x -> isSummarized x ? (sortMethod getSummaryCount x, x))
+            . (\x -> canGlobalSeach ? (processAll x, x))
             . fmap (process specs)
 
       let toOutput xs =
@@ -303,18 +315,35 @@ handleArgs args
           | otherwise = (snd . head $ xs)
 
 
-getDuplicates :: [[String]] -> [[String]] -> [(String, Int)]
-getDuplicates combos rawData = findDuplicates combos rawData
+        processAll :: [ClassDuplicates] -> [(String, [(String, Int)])]
+        processAll xs = mapMaybe (fromAll xs) foundCombos
 
--- add a way to only scan duplicates across multiple files not just
--- single files, useful for frameworks like react and all
+          where
+            foundCombos :: [String]
+            foundCombos = nub . concatMap (map fst . snd) $ xs
+
+            getComboCount :: String -> [(String, Int)] -> Int
+            getComboCount x =
+              maybe 0 snd
+              . listToMaybe
+              . filter ((== x) . fst)
+
+            fromAll :: [ClassDuplicates] -> String -> Maybe ClassDuplicates
+            fromAll xs combo =
+              (\x -> length x > 1 ? (Just (combo, x), Nothing))
+              . filter ((>1) . snd)
+              . map (\(file, ys) -> (file, getComboCount combo ys))
+              $ xs
+
+
 process :: Spec -> ClassData -> ClassDuplicates
 process spec (file, rawData) =
   let numCombo = minCombos spec
       filteredData = map (filter (specFilter spec)) rawData
       uniqClasses = getUniqClasses filteredData
       combos = genCombos numCombo uniqClasses
+      foundCombos = (getDuplicates spec) combos filteredData
   in
   (\(file, classData) -> (file, sort spec classData))
   . summary spec
-  $ (file, getDuplicates combos filteredData)
+  $ (file, foundCombos)

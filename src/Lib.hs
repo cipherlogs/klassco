@@ -80,7 +80,7 @@ countOccurences combos target = map countAndFormat combos
 
 findDuplicates :: Int -> [[String]] -> [[String]] -> [(String, Int)]
 findDuplicates min combos target =
-  filter ((>min) . snd) $ countOccurences combos target
+  filter ((>= min) . snd) $ countOccurences combos target
 
 getUniqClasses :: [[String]] -> [String]
 getUniqClasses = nub . concat
