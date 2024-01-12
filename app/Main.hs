@@ -233,7 +233,7 @@ main = getArgs >>= handleArgs
 handleArgs :: [String] -> IO ()
 handleArgs args
   | Fhelp `elem` options = printHelp
-  | Fversion `elem` options = putStrLn ("Klassco version: 0.01")
+  | Fversion `elem` options = putStrLn ("Klassco 1.0")
   | userPath == Nothing = printMessage forgotPathMsg
   | otherwise =
     do
