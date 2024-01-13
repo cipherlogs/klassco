@@ -3,7 +3,21 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: compact-word-vectors-0.2.0.2@sha256:49cf00f224000f149306e7043c228fa33e3dba87f10589e8326388c3278ba594,2709
+    pantry-tree:
+      sha256: 5713337589ee024f627123b448f8bf6ddf33e457c72daabc84a12f4ce7d8ddb0
+      size: 744
+  original:
+    hackage: compact-word-vectors-0.2.0.2
+- completed:
+    hackage: combinat-0.2.10.1@sha256:c039827890044eda529d9115daa5d93d0e30f68483cfde560786cd2e3483db50,5857
+    pantry-tree:
+      sha256: c8deb381f3554178eee607a17153f161b1efeb472c521b92b40aeb3d021e3c4b
+      size: 5196
+  original:
+    hackage: combinat-0.2.10.1
 snapshots:
 - completed:
     sha256: b37c0abab16c7de352c45b85f8ecc8530b084209a2c42987a96c92b4a5e3cd65

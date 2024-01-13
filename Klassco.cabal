@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.2.
+-- This file has been generated from package.yaml by hpack version 0.36.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -10,8 +10,8 @@ description:    Please see the README on GitHub at <https://github.com/cipherlog
 homepage:       https://github.com/cipherlogs/Klassco#readme
 bug-reports:    https://github.com/cipherlogs/Klassco/issues
 author:         cipherlogs
-maintainer:     example@example.com
-copyright:      2023 cipherlogs
+maintainer:     hi@cipherlogs.com
+copyright:      2024 cipherlogs
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -35,6 +35,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , combinat
     , directory
     , filepath
     , regex-tdfa
@@ -50,6 +51,7 @@ executable Klassco-exe
   build-depends:
       Klassco
     , base >=4.7 && <5
+    , combinat
     , directory
     , filepath
     , regex-tdfa
@@ -66,6 +68,7 @@ test-suite Klassco-test
   build-depends:
       Klassco
     , base >=4.7 && <5
+    , combinat
     , directory
     , filepath
     , regex-tdfa

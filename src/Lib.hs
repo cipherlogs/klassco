@@ -5,6 +5,7 @@ import Data.Bool
 import Data.Foldable (foldl', foldr')
 import Text.Regex.TDFA
 import Control.Monad (guard)
+import Math.Combinat (choose)
 
 infixl 1 ?
 (?) :: Bool -> (a, a) -> a
@@ -109,16 +110,33 @@ getClassNames =
     regexPattern :: String
     regexPattern = "[class|className]=\"([^\"]*)\""
 
-genCombos :: Int -> [String] -> [[String]]
-genCombos 0 _ = []
-genCombos 1 xs = map (: []) xs
-genCombos n xs =
-  concatMap (\(x, i) -> prod' [x] (genCombos (n-1) (drop i xs)))
-  . zipWith (,) xs
-  $ [1..length xs]
+-- first algo
+genCombos :: Int -> [a] -> [[a]]
+genCombos n xs = choose n xs
 
-prod' :: [String] -> [[String]] -> [[String]]
-prod' xs ys = map (xs ++) ys
+-- second algo
+-- genCombos :: Int -> [String] -> [[String]]
+-- genCombos 0 _ = []
+-- genCombos 1 xs = map (: []) xs
+-- genCombos n xs =
+--   concatMap (\(x, i) -> prod' [x] (genCombos (n-1) (drop i xs)))
+--   . zipWith (,) xs
+--   $ [1..length xs]
+--
+-- prod' :: [String] -> [[String]] -> [[String]]
+-- prod' xs ys = map (xs ++) ys
+
+--third algo
+-- genCombos :: Int -> [a] -> [[a]]
+-- genCombos n xs = map (take n) $ subsequences xs
+
+-- fourth algo
+-- genCombos :: Int -> [a] -> [[a]]
+-- genCombos n xs = go n xs
+--   where
+--     go 0 _  = [[]]
+--     go _ [] = []
+--     go k (y:ys) = map (y:) (go (k-1) ys) ++ go k ys
 
 adjacentPairs :: Int -> [a] -> [[a]]
 adjacentPairs _ [] = []
@@ -133,36 +151,36 @@ splitWith seperator = foldr' go [[]]
       | char == seperator = [seperator] : acc
       | otherwise = (char : x) : xs
 
-myCombos :: [[String]]
-myCombos =
-  filter' [isUniq]
-  . splitBySpace
-  . getCombos 2
-  . getUniqClasses
-  $ rawData
+-- myCombos :: [[String]]
+-- myCombos =
+--   filter' [isUniq]
+--   . splitBySpace
+--   . getCombos 2
+--   . getUniqClasses
+--   $ rawData
 
 -- newCombos :: [[String]]
 -- newCombos = genCombos 2 . getUniqClasses $ rawData
 
-sampleData :: [String]
-sampleData = ["a", "b", "c", "d"]
-
-rawData :: [[String]]
-rawData =
-  [
-    ["class1", "class2", "class3"],
-    ["class1", "class4", "class2"],
-    ["class1"],
-    ["class2", "class3", "class4"]
-  ]
-
-combo1 =
-  filter' [isUniq]
-  . splitBySpace
-  . getCombos 3
-  $ sampleData
-
-combo2 = genCombos 3 $ sampleData
+-- sampleData :: [String]
+-- sampleData = ["a", "b", "c", "d"]
+--
+-- rawData :: [[String]]
+-- rawData =
+--   [
+--     ["class1", "class2", "class3"],
+--     ["class1", "class4", "class2"],
+--     ["class1"],
+--     ["class2", "class3", "class4"]
+--   ]
+--
+-- combo1 =
+--   filter' [isUniq]
+--   . splitBySpace
+--   . getCombos 3
+--   $ sampleData
+--
+-- combo2 = genCombos 3 $ sampleData
 
 
 -- main :: IO ()

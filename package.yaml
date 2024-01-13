@@ -3,8 +3,8 @@ version:             0.1.0.0
 github:              "cipherlogs/Klassco"
 license:             BSD3
 author:              "cipherlogs"
-maintainer:          "example@example.com"
-copyright:           "2023 cipherlogs"
+maintainer:          "hi@cipherlogs.com"
+copyright:           "2024 cipherlogs"
 
 extra-source-files:
 - README.md
@@ -24,6 +24,7 @@ dependencies:
 - regex-tdfa
 - directory
 - filepath
+- combinat
 
 ghc-options:
 - -Wall
@@ -49,6 +50,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - Klassco
+
 
 tests:
   Klassco-test:

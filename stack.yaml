@@ -7,7 +7,6 @@
 # Resolver to choose a 'specific' stackage snapshot or a compiler version.
 # A snapshot resolver dictates the compiler version and the set of packages
 # to be used for project dependencies. For example:
-#
 # resolver: lts-3.5
 # resolver: nightly-2015-09-21
 # resolver: ghc-7.10.2
@@ -35,7 +34,9 @@ packages:
 # These entries can reference officially published versions as well as
 # forks / in-progress versions pinned to a git hash. For example:
 #
-# extra-deps:
+extra-deps:
+ - compact-word-vectors-0.2.0.2
+ - combinat-0.2.10.1
 # - acme-missiles-0.3
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
