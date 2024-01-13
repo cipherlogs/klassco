@@ -89,7 +89,8 @@ printHelp =
     putStrLn ("\n  -v, --version")
     putStrLn ("\tdisplay the current version of Klassco.")
 
-    putStrLn ("\n\nDocumentation can be found at " ++ repoUrl)
+    putStrLn ("\n\n+ To stay up to date, I'm on Twitter @cipherlogs")
+    putStrLn ("+ Documentation can be found at " ++ repoUrl)
 
 printMessage :: String -> IO ()
 printMessage msg =
