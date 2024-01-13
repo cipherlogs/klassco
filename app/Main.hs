@@ -52,7 +52,7 @@ printHelp =
     putStrLn ("\n      --desc")
     putStrLn ("\tsorts the result in descending order.")
 
-    putStrLn ("\n  -e, --extensions ~ (default: \"html js jsx\")")
+    putStrLn ("\n  -e, --extensions ~ (default: \"html js jsx ts tsx\")")
     putStrLn ("\tonly look for files with these extensions.")
     putStrLn ("\tseperate extensions with space.")
 
@@ -242,7 +242,8 @@ handleArgs args
       let getPrefixesVal = getValOf ["-f", "--find"]
       let getMinVal = getValOf ["-m", "--min"] >=> readMaybe
       let getDisplayVal = getValOf ["-d", "--display"] >=> readMaybe
-      let exts = maybe [] words $ getExtVal args :: [String]
+      let defaultExts = ["html", "js", "jsx", "ts", "tsx"]
+      let exts = maybe defaultExts words $ getExtVal args :: [String]
       let prefixes = maybe [] words $ getPrefixesVal args :: [String]
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
       let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
@@ -288,7 +289,6 @@ handleArgs args
               let canShowTotal = Ftotal `elem` options
               let shouldDisplayBoth = canShowTotal && canShowSummary
 
-              -- putStrLn "Good"
               shouldDisplayBoth ? (putStrLn displayBothMsg, return ())
               mapM_ printClasses xs
               canShowTotal ? (printTotal xs, return ())
