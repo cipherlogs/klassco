@@ -263,7 +263,7 @@ handleArgs args
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
       let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
       let canShowSummary = Fsummary `elem` options
-      let canGlobalSeach = Fglobal `elem` options
+      let canGlobalSearch = Fglobal `elem` options
 
       let displayN n
             | n == 0 = id
@@ -290,13 +290,13 @@ handleArgs args
           sort = sortMethod (\(_, x) -> x),
           specFilter = filterMethod prefixes,
           getDuplicates =
-            canGlobalSeach ? (findDuplicates 1, findDuplicates 2)
+            canGlobalSearch ? (findDuplicates 1, findDuplicates 2)
        }
 
       let calcOutput =
             fmap (displayN maxDisplay)
             . (\x -> isSummarized x ? (sortMethod getSummaryCount x, x))
-            . (\x -> canGlobalSeach ? (processAll x, x))
+            . (\x -> canGlobalSearch ? (processAll x, x))
             . fmap (process specs)
 
       let toOutput xs =
