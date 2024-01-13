@@ -150,6 +150,20 @@ getValOf flags (arg1:arg2:restArgs)
   | any (== arg1) flags = Just arg2
   | otherwise = getValOf flags (arg2:restArgs)
 
+getAllFiles :: FilePath -> IO [FilePath]
+getAllFiles path = do
+  isDir <- doesDirectoryExist path
+  if isDir
+     then do
+       contents <- listDirectory path
+       let ignoreList = ["node_modules", ".git"]
+       let safeContents = filter (not . (flip elem) ignoreList) contents
+       paths <- mapM (\name -> getAllFiles (path </> name)) safeContents
+       return (concat paths)
+
+  else do
+    return [path]
+
 getFiles :: FilePath -> IO [FilePath]
 getFiles dir =
   do
@@ -174,11 +188,12 @@ parsePathWith exts path =
        then isFile ? (return (Just [path]), getContent path)
        else return Nothing
 
-    where getContent :: FilePath -> IO (Maybe [FilePath])
-          getContent path =
-            do
-              files <- getFiles path
-              return (Just $ filterByExt exts files)
+    where 
+      getContent :: FilePath -> IO (Maybe [FilePath])
+      getContent path =
+        do
+          files <- getAllFiles path
+          return (Just $ filterByExt exts files)
 
 getClasses :: [FilePath] -> IO [ClassData]
 getClasses = do mapM go
