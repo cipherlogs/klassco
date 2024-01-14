@@ -19,7 +19,7 @@ type ClassDuplicates = (FilePath, [(String, Int)])
 printHelp :: IO ()
 printHelp =
   do
-    let repoUrl = "https://github.com/cipherlogs/Klassco"
+    let repoUrl = "https://cipherlogs.github.io/klassco"
 
     printLogo
 
