@@ -10,6 +10,4 @@ badPathMsg =
 
 displayBothMsg :: String
 displayBothMsg =
-  "\nWarning: you have used \"-f\" and \"-t\" at the same time.\n" ++
-  "\"-t\" will now instead calculate the total number of " ++
-  "duplicated combos instead"
+  "\nWarning: you are using \"-s\" and \"-t\" at the same time.\n"
