@@ -76,12 +76,7 @@ printHelp =
     putStrLn ("\tmany duplicate combos were found.")
 
     putStrLn ("\n  -t, --total")
-    putStrLn ("\tcalculate the total number of all duplicated classes.")
-
-    putStrLn ("\n\twhen \"-t -s\" flags are used together, the total will")
-    putStrLn ("\tbe the number of all duplicated combos that were found")
-    putStrLn ("\tacross all files.")
-    putStrLn ("\tremember one combo can be duplicated many times!.")
+    putStrLn ("\tcalculate the total.")
 
     putStrLn ("\n  -h, --help")
     putStrLn ("\tshow usage and all of Klassco options.")
