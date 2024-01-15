@@ -209,7 +209,7 @@ printClasses (file, classes) =
   where printClass :: (String, Int) -> IO ()
         printClass ("", count) =
           do
-            putStrLn ("\tfound " ++ show count ++ " duplicates.")
+            putStrLn ("\tfound " ++ show count ++ " duplicate" ++ (count > 1 ? ("s.", ".")))
 
         printClass (classNames, count) =
           do
