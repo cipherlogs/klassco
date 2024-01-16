@@ -216,6 +216,7 @@ printClasses (file, classes) =
           do
             putStrLn ("\t" ++ classNames)
             putStrLn ("\tduplicated " ++ show count ++ " times.")
+            putStrLn ""
 
 printTotal :: [ClassDuplicates] -> IO ()
 printTotal xs =
