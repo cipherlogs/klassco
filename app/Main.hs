@@ -41,7 +41,7 @@ printHelp =
     putStrLn ("  -m, --min INTEGER ~ (default: 2)")
     putStrLn ("\tminimum number of class combinations to check for.")
 
-    putStrLn ("\n      --global")
+    putStrLn ("  -g, --global")
     putStrLn ("\tsearch for duplicates by comparing classes across all")
     putStrLn ("\tfiles in the project. allowing you to identify where you")
     putStrLn ("\thave repeated yourself in other places.")
@@ -120,7 +120,7 @@ parseFlag flag
   | flag == "-d" || flag == "--display" = Just Fdisplay
   | flag == "-f" || flag == "--find" = Just Ffind
   | flag == "-t" || flag == "--total" = Just Ftotal
-  | flag == "--global" = Just Fglobal
+  | flag == "-g" || flag == "--global" = Just Fglobal
   | flag == "--asc" = Just Fasc
   | flag == "--desc" = Just Fdesc
   | otherwise = Nothing
