@@ -259,7 +259,7 @@ handleArgs args
       let prefixes = maybe [] words $ getPrefixesVal args :: [String]
       let minCombo = fromMaybe 2 $ getMinVal args :: Int
       let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
-      let canGlobalSearch = Fglobal `elem` options
+      let canGlobalSearch = Fglobal `elem` options && minCombo > 1
       let canShowSummary = Fsummary `elem` options && not canGlobalSearch
 
       let displayN n
