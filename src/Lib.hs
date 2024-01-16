@@ -78,10 +78,23 @@ countOccurences combos target = map countAndFormat combos
         incReducer sublist counter list =
           bool (counter) (counter + 1) (contained sublist list)
 
+countOccurencesEach :: [[String]] -> [[String]] -> [(String, Int)]
+countOccurencesEach combos target = map countAndFormat combos
 
-findDuplicates :: Int -> [[String]] -> [[String]] -> [(String, Int)]
-findDuplicates min combos target =
-  filter ((>= min) . snd) $ countOccurences combos target
+  where countAndFormat :: [String] -> (String, Int)
+        countAndFormat x = (concatClassNames x, countDuplicates x target)
+
+        countDuplicates :: [String] -> [[String]] -> Int
+        countDuplicates x xs = foldl' (incReducer x) 0 xs
+
+        incReducer :: [String] -> Int -> [String] -> Int
+        incReducer sublist counter list =
+          bool (counter) (counter + i) (contained sublist list)
+            where i = length . filter ((==)(intercalate " " sublist)) $ list
+
+
+keepGt :: Int -> [(String, Int)] -> [(String, Int)]
+keepGt min = filter ((> min) . snd)
 
 getUniqClasses :: [[String]] -> [String]
 getUniqClasses = nub . concat
@@ -146,6 +159,11 @@ splitWith seperator = foldr' go [[]]
     go char acc@(x:xs)
       | char == seperator = [seperator] : acc
       | otherwise = (char : x) : xs
+
+
+removePrefixes :: [String] -> [String]
+removePrefixes = map clean
+  where clean = reverse . takeWhile ((/=) ':') . reverse
 
 -- myCombos :: [[String]]
 -- myCombos =
