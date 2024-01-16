@@ -200,6 +200,7 @@ getClasses = do mapM go
             return (file, getClassNames fileContent)
 
 printClasses :: ClassDuplicates -> IO ()
+printClasses (file, classes) | (length . filter ((>0) . snd)) classes == 0 = return ()
 printClasses (file, classes) =
   do
     putStr ("\n+ ")
