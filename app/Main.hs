@@ -340,12 +340,6 @@ handleArgs args
             foundCombos :: [String]
             foundCombos = nub . concatMap (map fst . snd) $ xs
 
-            getComboCount :: String -> [(String, Int)] -> Int
-            getComboCount x =
-              maybe 0 snd
-              . listToMaybe
-              . filter ((== x) . fst)
-
             fromAll :: [ClassDuplicates] -> String -> Maybe ClassDuplicates
             fromAll xs combo =
               (\x -> length x > 1 ? (Just (combo, x), Nothing))
