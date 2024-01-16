@@ -347,14 +347,27 @@ handleArgs args
               . map (\(file, ys) -> (file, getComboCount combo ys))
               $ xs
 
+            getComboCount :: String -> [(String, Int)] -> Int
+            getComboCount combo =
+              maybe 0 snd
+              . listToMaybe
+              . filter ((== combo) . fst)
+
 
 process :: Spec -> ClassData -> ClassDuplicates
 process spec (file, rawData) =
-  let numCombo = minCombos spec
-      filteredData = map (filter (specFilter spec)) rawData
-      uniqClasses = getUniqClasses filteredData
-      combos = genCombos numCombo uniqClasses
-      foundCombos = (getDuplicates spec) combos filteredData
+  let min = minCombos spec
+      cleanClasses = min == 1 ? (removePrefixes, id)
+      filteredData = map (cleanClasses . filter (specFilter spec)) rawData
+      uniqClasses = nub . cleanClasses . concat $ filteredData
+      combos = genCombos min uniqClasses
+
+      foundCombos =
+        if min == 1
+           then concat . map (\xs -> scan combos [xs]) $ filteredData
+           else scan combos filteredData
+             where scan = getDuplicates spec
+
   in
   (\(file, classData) -> (file, sort spec classData))
   . summary spec
