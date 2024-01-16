@@ -281,13 +281,13 @@ handleArgs args
 
             | otherwise = const (True)
 
+      let countDuplicates = minCombo == 1 ? (countOccurencesEach, countOccurences)
       let specs = Spec {
           minCombos = minCombo,
           summary = canShowSummary ? (summarize, id),
           sort = sortMethod (\(_, x) -> x),
           specFilter = filterMethod prefixes,
-          getDuplicates =
-            canGlobalSearch ? (findDuplicates 1, findDuplicates 2)
+          getDuplicates = keepGt (canGlobalSearch ? (0, 1)) .: countDuplicates
        }
 
       let calcOutput =
