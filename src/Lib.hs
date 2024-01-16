@@ -5,7 +5,7 @@ import Data.Bool
 import Data.Foldable (foldl', foldr')
 import Text.Regex.TDFA
 import Control.Monad (guard)
-import Math.Combinat (choose)
+-- import Math.Combinat (choose)
 
 infixl 1 ?
 (?) :: Bool -> (a, a) -> a
@@ -111,8 +111,8 @@ getClassNames =
     regexPattern = "[class|className]=\"([^\"]*)\""
 
 -- first algo
-genCombos :: Int -> [a] -> [[a]]
-genCombos n xs = choose n xs
+-- genCombos :: Int -> [a] -> [[a]]
+-- genCombos n xs = choose n xs
 
 -- second algo
 -- genCombos :: Int -> [String] -> [[String]]
@@ -126,17 +126,13 @@ genCombos n xs = choose n xs
 -- prod' :: [String] -> [[String]] -> [[String]]
 -- prod' xs ys = map (xs ++) ys
 
---third algo
--- genCombos :: Int -> [a] -> [[a]]
--- genCombos n xs = map (take n) $ subsequences xs
-
--- fourth algo
--- genCombos :: Int -> [a] -> [[a]]
--- genCombos n xs = go n xs
---   where
---     go 0 _  = [[]]
---     go _ [] = []
---     go k (y:ys) = map (y:) (go (k-1) ys) ++ go k ys
+-- third algo
+genCombos :: Int -> [a] -> [[a]]
+genCombos n xs = go n xs
+  where
+    go 0 _  = [[]]
+    go _ [] = []
+    go k (y:ys) = map (y:) (go (k-1) ys) ++ go k ys
 
 adjacentPairs :: Int -> [a] -> [[a]]
 adjacentPairs _ [] = []
