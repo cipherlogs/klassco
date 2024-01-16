@@ -8,6 +8,12 @@ badPathMsg :: String
 badPathMsg =
   "Error: the specified path does not exists or is invalid."
 
-displayBothMsg :: String
-displayBothMsg =
-  "\nWarning: you are using \"-s\" and \"-t\" at the same time.\n"
+sumAndTotMsg :: String
+sumAndTotMsg =
+  "WARNING: you are using \"-s\" and \"-t\" at the same time."
+
+
+globalAndFilePathMsg :: String
+globalAndFilePathMsg =
+  "WARNING: \"-g\" is ignored, because the target is a file and not " ++
+  "a directory."
