@@ -299,9 +299,14 @@ handleArgs args
       let toOutput xs =
             do
               let canShowTotal = Ftotal `elem` options
-              let shouldDisplayBoth = canShowTotal && canShowSummary
+              let showWarning1 = canShowTotal && canShowSummary
+              isFilePath <- doesFileExist $ fromJust userPath
+              let showWarning2 = canShowTotal && isFilePath
 
-              shouldDisplayBoth ? (putStrLn displayBothMsg, return ())
+              putStrLn ""
+              showWarning1 ? (putStrLn sumAndTotMsg, return ())
+              showWarning2 ? (putStrLn globalAndFilePathMsg, return ())
+              -- mapM_ (\(_, ys) -> putStrLn $ show ys) xs
               mapM_ printClasses xs
               canShowTotal ? (printTotal xs, return ())
 
