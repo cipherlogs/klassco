@@ -261,11 +261,7 @@ handleArgs args
       let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
       let canGlobalSearch = Fglobal `elem` options && minCombo > 1
       let canShowSummary = Fsummary `elem` options && not canGlobalSearch
-
-      let displayN n
-            | n == 0 = id
-            | n > 0 = (\(file, xs) -> (file, take n xs))
-            | otherwise = (\(file, xs) -> (file, drop (length xs + n) xs))
+      let canFilterAll = canShowSummary && maxDisplay /= 0
 
       let sortMethod
             | Fasc `elem` options = sortBy Asc
@@ -290,8 +286,16 @@ handleArgs args
           getDuplicates = keepGt (canGlobalSearch ? (0, 1)) .: countDuplicates
        }
 
+      let displayN n xs
+            | n == 0 = xs
+            | n > 0 = take n xs
+            | otherwise = drop (length xs + n) xs
+
+
+      let cutFrom = displayN maxDisplay
+
       let calcOutput =
-            fmap (displayN maxDisplay)
+            (\x -> canFilterAll ? (cutFrom x, fmap (\(file, xs) -> (file, cutFrom xs)) x))
             . (\x -> isSummarized x ? (sortMethod getSummaryCount x, x))
             . (\x -> canGlobalSearch ? (processAll x, x))
             . fmap (process specs)
