@@ -301,7 +301,7 @@ handleArgs args
               let canShowTotal = Ftotal `elem` options
               let showWarning1 = canShowTotal && canShowSummary
               isFilePath <- doesFileExist $ fromJust userPath
-              let showWarning2 = canShowTotal && isFilePath
+              let showWarning2 = canGlobalSearch && isFilePath
 
               putStrLn ""
               showWarning1 ? (putStrLn sumAndTotMsg, return ())
