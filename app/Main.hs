@@ -66,9 +66,9 @@ printHelp =
     putStrLn ("\t   \"dark:md:\"==\"md:dark:\" the order is ignored!")
 
     putStrLn ("\n  -d, --display INTEGER")
-    putStrLn ("\tdisplay n lines from the output.")
+    putStrLn ("\tdisplay n found duplications from the output.")
     putStrLn ("\t\t0 to show all.")
-    putStrLn ("\t\t+n to show the top n lines.")
+    putStrLn ("\t\tn to show the top n lines.")
     putStrLn ("\t\t-n to show the bottom n lines.")
 
     putStrLn ("\n  -s, --summary")
