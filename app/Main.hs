@@ -278,6 +278,7 @@ handleArgs args
             | otherwise = const (True)
 
       let countDuplicates = minCombo == 1 ? (countOccurencesEach, countOccurences)
+
       let specs = Spec {
           minCombos = minCombo,
           summary = canShowSummary ? (summarize, id),
@@ -285,12 +286,6 @@ handleArgs args
           specFilter = filterMethod prefixes,
           getDuplicates = keepGt (canGlobalSearch ? (0, 1)) .: countDuplicates
        }
-
-      let displayN n xs
-            | n == 0 = xs
-            | n > 0 = take n xs
-            | otherwise = drop (length xs + n) xs
-
 
       let cutFrom = displayN maxDisplay
 

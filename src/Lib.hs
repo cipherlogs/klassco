@@ -165,6 +165,13 @@ removePrefixes :: [String] -> [String]
 removePrefixes = map clean
   where clean = reverse . takeWhile ((/=) ':') . reverse
 
+
+displayN :: Int -> [a] -> [a]
+displayN n xs
+  | n == 0 = xs
+  | n > 0 = take n xs
+  | otherwise = drop (length xs + n) xs
+
 -- myCombos :: [[String]]
 -- myCombos =
 --   filter' [isUniq]
