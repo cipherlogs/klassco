@@ -2,13 +2,19 @@ module Main where
 
 import System.Environment
 import System.Directory
+import System.Timeout (timeout)
+import System.IO
 import System.FilePath ((</>))
-import Control.Monad ((<=<), (>=>))
+import Control.Monad ((<=<), (>=>), forM_)
+import Control.DeepSeq (NFData, deepseq, force)
+import Control.Concurrent
+import Control.Arrow
 import Data.List (isSuffixOf, isPrefixOf, isInfixOf, nub)
 import Data.Foldable (foldl')
 import Data.Maybe
 import Text.Read
 import Lib
+import Console
 import Msgs
 import Logo
 
@@ -19,44 +25,44 @@ type ClassDuplicates = (FilePath, [(String, Int)])
 printHelp :: IO ()
 printHelp =
   do
-    let repoUrl = "https://cipherlogs.github.io/klassco"
+    let repoUrl = "https://klassco.cipherlogs.com"
 
     printLogo
 
-    putStr ("extract all CSS classes (i.e tailwind) that ")
+    putStr ("Extract all CSS classes (i.e tailwind) that ")
     putStrLn ("were used,")
-    putStrLn ("analyze them and highlight all the duplicates,")
-    putStr ("then abstract it into a higher abstraction ")
+    putStrLn ("Analyze them and highlight all the duplicates,")
+    putStr ("Then abstract it into a higher abstraction ")
     putStrLn ("and make it reusable.")
 
 
-    putStrLn ("\n\nUsage: klassco [options] path")
+    logBold ("\n\nUsage: ")
+    putStrLn ("klassco [options] path")
+    logBold ("---\n\n\n")
 
-    putStrLn ("\npath:")
-    putStrLn ("  the path to analyze and scan for duplicate CSS classes.")
-    putStr ("  it will automatically detect whether the path is ")
-    putStrLn ("a directory or a file.")
+    putStrLn ("+ path:")
+    putStrLn ("  file or directory\n")
 
-    putStrLn ("\n\noptions: [optional]")
-    putStrLn ("  -m, --min INTEGER ~ (default: 2)")
+    putStrLn ("+ options: [optional]")
+    logMain ("  -m, --min INTEGER ~ (default: 2)\n")
     putStrLn ("\tminimum number of class combinations to check for.")
 
-    putStrLn ("  -g, --global")
+    logMain ("\n  -g, --global\n")
     putStrLn ("\tsearch for duplicates by comparing classes across all")
     putStrLn ("\tfiles in the project. allowing you to identify where you")
     putStrLn ("\thave repeated yourself in other places.")
 
-    putStrLn ("\n      --asc")
+    logMain ("\n      --asc\n")
     putStrLn ("\tsorts the result in ascending order.")
 
-    putStrLn ("\n      --desc")
+    logMain ("\n      --desc\n")
     putStrLn ("\tsorts the result in descending order.")
 
-    putStrLn ("\n  -e, --extensions ~ (default: \"html js jsx ts tsx\")")
+    logMain ("\n  -e, --extensions ~ (default: \"html js jsx ts tsx\")\n")
     putStrLn ("\tonly look for files with these extensions.")
     putStrLn ("\tseperate extensions with space.")
 
-    putStrLn ("\n  -f, --find ~ (default: all)")
+    logMain ("\n  -f, --find ~ (default: all)\n")
     putStrLn ("\tfind duplicated classes with selected prefixes/infixes.\n")
     putStrLn ("\t-f \"dark: md: header-\" seperate with space.")
     putStrLn ("\t-f all -> finds all.")
@@ -65,27 +71,31 @@ printHelp =
     putStrLn ("\t-f \"dark:md:\" -> selects classes that contain both.")
     putStrLn ("\t   \"dark:md:\"==\"md:dark:\" the order is ignored!")
 
-    putStrLn ("\n  -d, --display INTEGER")
+    logMain ("\n  -d, --display INTEGER\n")
     putStrLn ("\tdisplay n found duplications from the output.")
     putStrLn ("\t\t0 to show all.")
     putStrLn ("\t\tn to show the top n lines.")
     putStrLn ("\t\t-n to show the bottom n lines.")
 
-    putStrLn ("\n  -s, --summary")
+    logMain ("\n  -s, --summary\n")
     putStrLn ("\tgenerate a summary report of each file analyzed and how")
     putStrLn ("\tmany duplicate combos were found.")
 
-    putStrLn ("\n  -t, --total")
+    logMain ("\n  -t, --total\n")
     putStrLn ("\tcalculate the total.")
 
-    putStrLn ("\n  -h, --help")
+    logMain ("\n  -h, --help\n")
     putStrLn ("\tshow usage and all of Klassco options.")
 
-    putStrLn ("\n  -v, --version")
+    logMain ("\n  -v, --version\n")
     putStrLn ("\tdisplay the current version of Klassco.")
 
-    putStrLn ("\n\n+ To stay up to date, I'm on Twitter @cipherlogs")
-    putStrLn ("+ Documentation can be found at " ++ repoUrl)
+
+    putStr ("\n\n+ To stay up to date, I'm on Twitter ")
+    logMain ("@cipherlogs\n")
+
+    putStr ("+ Documentation can be found at ")
+    logMain (repoUrl ++ "\n")
 
 printMessage :: String -> IO ()
 printMessage msg =
@@ -199,13 +209,14 @@ getClasses = do mapM go
             fileContent <- readFile file
             return (file, getClassNames fileContent)
 
+-- add flag option to hide
 printClasses :: ClassDuplicates -> IO ()
 printClasses (file, classes) | (length . filter ((>0) . snd)) classes == 0 = return ()
 printClasses (file, classes) =
   do
     putStr ("\n+ ")
-    putStrLn (file ++ ":")
-    mapM_ printClass classes
+    logBold (file ++ ":\n")
+    forM_ classes printClass
 
   where printClass :: (String, Int) -> IO ()
         printClass ("", count) =
@@ -222,7 +233,7 @@ printTotal :: [ClassDuplicates] -> IO ()
 printTotal xs =
   do
     let total = sumIt xs
-    putStrLn ("\n---")
+    logMain ("\n---\n")
     putStrLn ("Found " ++ show total ++ " in total.")
 
     where
@@ -232,13 +243,6 @@ printTotal xs =
       f acc (_, ys) = acc + f' ys
       f' = foldl' (\acc (_, x) -> acc + x) 0
 
-data Spec = Spec {
-  minCombos :: Int,
-  summary :: (ClassDuplicates -> ClassDuplicates),
-  sort :: [(String, Int)] -> [(String, Int)],
-  specFilter :: String -> Bool,
-  getDuplicates :: [[String]] -> [[String]] -> [(String, Int)]
-}
 
 main :: IO ()
 main = getArgs >>= handleArgs
@@ -261,9 +265,9 @@ handleArgs args
       let maxDisplay = fromMaybe 0 $ getDisplayVal args :: Int
       let canGlobalSearch = Fglobal `elem` options && minCombo > 1
       let canShowSummary = Fsummary `elem` options && not canGlobalSearch
-      let canFilterAll = canShowSummary && maxDisplay /= 0
+      let canFilterAll = (canGlobalSearch || canShowSummary) && maxDisplay /= 0
 
-      let sortMethod
+      let sortWith
             | Fasc `elem` options = sortBy Asc
             | Fdesc `elem` options = sortBy Desc
             | otherwise = const id
@@ -277,44 +281,105 @@ handleArgs args
 
             | otherwise = const (True)
 
-      let countDuplicates = minCombo == 1 ? (countOccurencesEach, countOccurences)
 
-      let specs = Spec {
-          minCombos = minCombo,
-          summary = canShowSummary ? (summarize, id),
-          sort = sortMethod (\(_, x) -> x),
-          specFilter = filterMethod prefixes,
-          getDuplicates = keepGt (canGlobalSearch ? (0, 1)) .: countDuplicates
-       }
 
-      let cutFrom = displayN maxDisplay
-
-      let calcOutput =
-            (\x -> canFilterAll ? (cutFrom x, fmap (\(file, xs) -> (file, cutFrom xs)) x))
-            . (\x -> isSummarized x ? (sortMethod getSummaryCount x, x))
-            . (\x -> canGlobalSearch ? (processAll x, x))
-            . fmap (process specs)
-
-      let toOutput xs =
+      let runMain paths =
             do
+              hSetBuffering stdout NoBuffering
+
               let canShowTotal = Ftotal `elem` options
-              let showWarning1 = canShowTotal && canShowSummary
+              let canShowWarning1 = canShowTotal && canShowSummary
               isFilePath <- doesFileExist $ fromJust userPath
-              let showWarning2 = canGlobalSearch && isFilePath
+              let canShowWarning2 = canGlobalSearch && isFilePath
+              let min = minCombo
+              let clean = min == 1 ? (removePrefixes, id)
+              let filterClasses = filter $ filterMethod prefixes
+              let cleanClassData = (\(f, x) -> (f, map (clean . filterClasses) x))
+
+              numOfThreads <- getNumCapabilities
+              let threads =
+                    show numOfThreads ++ " CPU thread" ++ (numOfThreads > 1 ? ("s", ""))
+
+              logWarning ("\nINFO: ") >> putStrLn (threads ++ " can be used!")
+
+              if canShowWarning1
+                 then logWarning "WARNING: " >> (putStrLn sumAndTotMsg)
+                 else return ()
+
+              if canShowWarning2
+                 then logWarning "WARNING: " >> putStrLn globalAndFilePathMsg
+                 else return ()
 
               putStrLn ""
-              showWarning1 ? (putStrLn sumAndTotMsg, return ())
-              showWarning2 ? (putStrLn globalAndFilePathMsg, return ())
-              -- mapM_ (\(_, ys) -> putStrLn $ show ys) xs
-              mapM_ printClasses xs
-              canShowTotal ? (printTotal xs, return ())
+              putStr "+ Scanning "
+              classes <- getClasses paths
+              let totalClasses = sum $ map (sum . map length . snd ) classes
+              classes `deepseq` putStr "."
+
+              let allClassData = map cleanClassData classes
+              allClassData `deepseq` putStr "."
+
+
+              let uniqClasses = nub . concat $ map (clean . concat . snd) allClassData
+              uniqClasses `deepseq` putStr ".\n"
+              putStrLn (
+                        "+ " ++
+                        show totalClasses ++ " found, " ++
+                        show (length uniqClasses) ++ " unique"
+                       )
+
+              let combosCount = getCombosCount min uniqClasses
+              putStrLn $ "+ " ++ describeComboCount combosCount ++ "\n"
+
+              putStr ("+ Extracting\n")
+              progressId <- forkIO $ showProgress 2
+
+              let countDuplicates = minCombo == 1 ? (countOccurencesEach, countOccurences)
+              let getDuplicates = keepGt (canGlobalSearch ? (0, 1)) .: countDuplicates
+
+              let extractDuplicates xs =
+                    if min == 1
+                       then concat . map (\x -> getDuplicates combos [x]) $ xs
+                       else getDuplicates combos xs
+                         where combos = genCombos min $ (nub . clean . concat) xs
+
+              let cutFrom = takeN maxDisplay
+              let result =
+                      (canFilterAll ? (cutFrom, fmap $ second cutFrom))
+                    . (\x -> isSummarized x ? (sortWith getSummaryCount x, x))
+                    . (canGlobalSearch ? (processAll, id))
+                    . filter (hasClasses)
+                    . map (second $ sortWith snd)
+                    . map (canShowSummary ? (summarize, id))
+                    . map (second extractDuplicates)
+                    $ allClassData
+
+              -- Output
+              forM_ result printClasses
+              result `deepseq` killThread progressId
+              canShowTotal ? (printTotal result, return ())
+
+
 
       parsedPath <- parsePathWith exts (fromJust userPath)
       maybe (printMessage badPathMsg)
-            ((toOutput . calcOutput) <=< getClasses)
+            (runMain)
             (parsedPath)
 
   where (options, userPath) = parseArgs args
+
+        showProgress :: Int -> IO ()
+        showProgress interval =
+          do
+            threadDelay (interval * 1000000)
+            putStr "."
+            hFlush stdout
+            showProgress interval
+
+
+        hasClasses :: ClassDuplicates -> Bool
+        hasClasses = (notNull `andd` ((>0) . snd . head)) . snd
+
         summarize :: ClassDuplicates -> ClassDuplicates
         summarize (file, xs) = (file, [("", length xs)])
 
@@ -351,23 +416,3 @@ handleArgs args
               maybe 0 snd
               . listToMaybe
               . filter ((== combo) . fst)
-
-
-process :: Spec -> ClassData -> ClassDuplicates
-process spec (file, rawData) =
-  let min = minCombos spec
-      cleanClasses = min == 1 ? (removePrefixes, id)
-      filteredData = map (cleanClasses . filter (specFilter spec)) rawData
-      uniqClasses = nub . cleanClasses . concat $ filteredData
-      combos = genCombos min uniqClasses
-
-      foundCombos =
-        if min == 1
-           then concat . map (\xs -> scan combos [xs]) $ filteredData
-           else scan combos filteredData
-             where scan = getDuplicates spec
-
-  in
-  (\(file, classData) -> (file, sort spec classData))
-  . summary spec
-  $ (file, foundCombos)

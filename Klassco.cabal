@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Console
       Lib
       Logo
       Msgs
@@ -34,8 +35,10 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      ansi-terminal
+    , base >=4.7 && <5
     , combinat
+    , deepseq
     , directory
     , filepath
     , regex-tdfa
@@ -50,8 +53,10 @@ executable Klassco-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Klassco
+    , ansi-terminal
     , base >=4.7 && <5
     , combinat
+    , deepseq
     , directory
     , filepath
     , regex-tdfa
@@ -67,8 +72,10 @@ test-suite Klassco-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Klassco
+    , ansi-terminal
     , base >=4.7 && <5
     , combinat
+    , deepseq
     , directory
     , filepath
     , regex-tdfa

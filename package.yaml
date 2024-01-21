@@ -25,6 +25,9 @@ dependencies:
 - directory
 - filepath
 - combinat
+- deepseq
+- ansi-terminal
+
 
 ghc-options:
 - -Wall

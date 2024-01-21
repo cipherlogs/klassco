@@ -18,6 +18,13 @@ packages:
       size: 5196
   original:
     hackage: combinat-0.2.10.1
+- completed:
+    hackage: deepseq-1.4.6.1@sha256:48764fb9b02c3a1653067633c1a9c1806e4e3802d5d1f21abd3a8ba528dd90f5,2937
+    pantry-tree:
+      sha256: 1299d74bbcedfafe3641896c07808a3028ce2b77a48c9f1e463a04ab5f299f6b
+      size: 385
+  original:
+    hackage: deepseq-1.4.6.1
 snapshots:
 - completed:
     sha256: b37c0abab16c7de352c45b85f8ecc8530b084209a2c42987a96c92b4a5e3cd65

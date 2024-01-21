@@ -1,4 +1,5 @@
 module Logo (printLogo) where
+import Console
 
 logoData :: [String]
 logoData =
@@ -15,4 +16,5 @@ logoData =
   ]
 
 printLogo :: IO ()
-printLogo = mapM_ putStrLn logoData
+printLogo = mapM_ (logBold . (++"\n")) logoData
+-- printLogo = mapM_ putStrLn logoData

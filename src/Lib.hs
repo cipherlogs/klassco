@@ -4,8 +4,13 @@ import Data.List
 import Data.Bool
 import Data.Foldable (foldl', foldr')
 import Text.Regex.TDFA
-import Control.Monad (guard)
--- import Math.Combinat (choose)
+import Control.Monad (guard, when, forM_)
+import Control.Applicative (liftA2)
+import Math.Combinat (choose)
+import Text.Printf
+import System.CPUTime (getCPUTime)
+import System.Timeout (timeout)
+import System.Console.ANSI
 
 infixl 1 ?
 (?) :: Bool -> (a, a) -> a
@@ -22,8 +27,14 @@ nth :: a -> Int -> [a] -> a
 nth fallback _ [] = fallback
 nth _ index xs = xs !! index
 
-thrush :: a -> (a -> b) -> b
-thrush x f = f x
+andd :: (a -> Bool) -> (a -> Bool) -> a -> Bool
+andd = liftA2 (&&)
+
+orr :: (a -> Bool) -> (a -> Bool) -> a -> Bool
+orr = liftA2 (||)
+
+notNull :: Foldable t => t a -> Bool
+notNull = not . null
 
 nestMap :: (a -> a -> a) -> [a] -> [a] -> [a]
 nestMap f xs ys = concatMap (\x -> map (\y -> f x y) ys) xs
@@ -57,11 +68,6 @@ sortBy mode f xs
 splitBySpace :: [String] -> [[String]]
 splitBySpace = map words
 
-contained :: (Eq a) => [a] -> [a] -> Bool
-contained [] _ = False
-contained _ [] = False
-contained sublist list = all (`elem` list) sublist
-
 concatClassNames :: [String] -> String
 concatClassNames = intercalate ", " . sort
 
@@ -77,6 +83,11 @@ countOccurences combos target = map countAndFormat combos
         incReducer :: [String] -> Int -> [String] -> Int
         incReducer sublist counter list =
           bool (counter) (counter + 1) (contained sublist list)
+
+contained :: (Ord a) => [a] -> [a] -> Bool
+contained [] _ = False
+contained _ [] = False
+contained sublist list = all (`elem` list) sublist
 
 countOccurencesEach :: [[String]] -> [[String]] -> [(String, Int)]
 countOccurencesEach combos target = map countAndFormat combos
@@ -100,7 +111,7 @@ getUniqClasses :: [[String]] -> [String]
 getUniqClasses = nub . concat
 
 anyPredicates :: [(a -> Bool)] -> a -> Bool
-anyPredicates predicates x = any (thrush x) predicates
+anyPredicates predicates x = any ($ x) predicates
 
 filter' :: [(a -> Bool)] -> [a] -> [a]
 filter' filters = filter (anyPredicates filters)
@@ -123,29 +134,20 @@ getClassNames =
     regexPattern :: String
     regexPattern = "[class|className]=\"([^\"]*)\""
 
--- first algo
--- genCombos :: Int -> [a] -> [[a]]
--- genCombos n xs = choose n xs
-
--- second algo
--- genCombos :: Int -> [String] -> [[String]]
--- genCombos 0 _ = []
--- genCombos 1 xs = map (: []) xs
--- genCombos n xs =
---   concatMap (\(x, i) -> prod' [x] (genCombos (n-1) (drop i xs)))
---   . zipWith (,) xs
---   $ [1..length xs]
---
--- prod' :: [String] -> [[String]] -> [[String]]
--- prod' xs ys = map (xs ++) ys
-
--- third algo
 genCombos :: Int -> [a] -> [[a]]
-genCombos n xs = go n xs
+genCombos = choose
+
+getCombosCount :: Int -> [a] -> Integer
+getCombosCount k' xs = product [(n - k + 1).. n] `div` product [1..k]
   where
-    go 0 _  = [[]]
-    go _ [] = []
-    go k (y:ys) = map (y:) (go (k-1) ys) ++ go k ys
+    n = toInteger . length $ xs
+    k = toInteger k'
+
+secondsToTime :: Int -> String
+secondsToTime seconds =
+  let (hours, remainder1) = seconds `divMod` 3600
+      (minutes, secs)     = remainder1 `divMod` 60
+   in printf "%02dh:%02dmin:%02dsec" hours minutes secs
 
 adjacentPairs :: Int -> [a] -> [[a]]
 adjacentPairs _ [] = []
@@ -166,43 +168,33 @@ removePrefixes = map clean
   where clean = reverse . takeWhile ((/=) ':') . reverse
 
 
-displayN :: Int -> [a] -> [a]
-displayN n xs
+takeN :: Int -> [a] -> [a]
+takeN n xs
   | n == 0 = xs
   | n > 0 = take n xs
   | otherwise = drop (length xs + n) xs
 
--- myCombos :: [[String]]
--- myCombos =
---   filter' [isUniq]
---   . splitBySpace
---   . getCombos 2
---   . getUniqClasses
---   $ rawData
 
--- newCombos :: [[String]]
--- newCombos = genCombos 2 . getUniqClasses $ rawData
+describeComboCount :: Integer -> String
+describeComboCount n
+  | n >= 1000000000000000 =
+    "Over " ++ show (n `div` 1000000000000000) ++ " quadrillion combos will be generated"
 
--- sampleData :: [String]
--- sampleData = ["a", "b", "c", "d"]
---
--- rawData :: [[String]]
--- rawData =
---   [
---     ["class1", "class2", "class3"],
---     ["class1", "class4", "class2"],
---     ["class1"],
---     ["class2", "class3", "class4"]
---   ]
---
--- combo1 =
---   filter' [isUniq]
---   . splitBySpace
---   . getCombos 3
---   $ sampleData
---
--- combo2 = genCombos 3 $ sampleData
+  | n >= 1000000000000 =
+    "Over " ++ show (n `div` 1000000000000) ++ " trillion combos will be generated"
+
+  | n >= 1000000000 =
+    "Over " ++ show (n `div` 1000000000) ++ " billion combos will be generated"
+
+  | n >= 1000000 =
+    "Over " ++ show (n `div` 1000000) ++ " million combos will be generated"
+
+  | n >= 1000 =
+    "Over " ++ show (n `div` 1000) ++ " thousand combos will be generated"
+
+  | otherwise = show n ++ " combos will be generated"
+
 
 
 -- main :: IO ()
--- main = print ""
+-- main = print . show $ countOccurences combos target
