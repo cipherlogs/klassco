@@ -178,21 +178,21 @@ takeN n xs
 describeComboCount :: Integer -> String
 describeComboCount n
   | n >= 1000000000000000 =
-    "Over " ++ show (n `div` 1000000000000000) ++ " quadrillion combos will be generated"
+    "Over " ++ show (n `div` 1000000000000000) ++ " quadrillion possible duplicates"
 
   | n >= 1000000000000 =
-    "Over " ++ show (n `div` 1000000000000) ++ " trillion combos will be generated"
+    "Over " ++ show (n `div` 1000000000000) ++ " trillion possible duplicates"
 
   | n >= 1000000000 =
-    "Over " ++ show (n `div` 1000000000) ++ " billion combos will be generated"
+    "Over " ++ show (n `div` 1000000000) ++ " billion possible duplicates"
 
   | n >= 1000000 =
-    "Over " ++ show (n `div` 1000000) ++ " million combos will be generated"
+    "Over " ++ show (n `div` 1000000) ++ " million possible duplicates"
 
   | n >= 1000 =
-    "Over " ++ show (n `div` 1000) ++ " thousand combos will be generated"
+    "Over " ++ show (n `div` 1000) ++ " thousand possible duplicates"
 
-  | otherwise = show n ++ " combos will be generated"
+  | otherwise = show n ++ " possible duplicates"
 
 
 
