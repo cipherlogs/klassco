@@ -9,7 +9,7 @@ import Control.Monad ((<=<), (>=>), forM_)
 import Control.DeepSeq (NFData, deepseq, force)
 import Control.Concurrent
 import Control.Arrow
-import Data.List (isSuffixOf, isPrefixOf, isInfixOf, nub)
+import Data.List (isSuffixOf, isPrefixOf, isInfixOf, nub, sort)
 import Data.Foldable (foldl')
 import Data.Maybe
 import Text.Read
@@ -100,11 +100,10 @@ printHelp =
 printMessage :: String -> IO ()
 printMessage msg =
   do
-    putStrLn (msg)
+    logError (msg)
 
-    putStr ("\ntry running \"klassco --help\" ")
+    putStr ("\n\ntry running \"klassco --help\" ")
     putStrLn ("to see the usage information.")
-    putStrLn ("Happy computing!")
 
 data CliFlag =
   Fhelp |
@@ -341,7 +340,12 @@ handleArgs args
                     if min == 1
                        then concat . map (\x -> getDuplicates combos [x]) $ xs
                        else getDuplicates combos xs
-                         where combos = genCombos min $ (nub . clean . concat) xs
+                         where
+                           combos =
+                             nub
+                             . concatMap (sort . genCombos min)
+                             . filter ((>=min). length)
+                             $ xs
 
               let cutFrom = takeN maxDisplay
               let result =
