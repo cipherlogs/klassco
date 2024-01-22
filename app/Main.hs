@@ -344,7 +344,9 @@ handleArgs args
                            combos =
                              nub
                              . concatMap (sort . genCombos min)
-                             . filter ((>=min). length)
+                             . nub
+                             . map (sort)
+                             . filter ((>=min) . length)
                              $ xs
 
               let cutFrom = takeN maxDisplay
