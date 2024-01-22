@@ -8,9 +8,6 @@ import Control.Monad (guard, when, forM_)
 import Control.Applicative (liftA2)
 import Math.Combinat (choose)
 import Text.Printf
-import System.CPUTime (getCPUTime)
-import System.Timeout (timeout)
-import System.Console.ANSI
 
 infixl 1 ?
 (?) :: Bool -> (a, a) -> a
@@ -83,6 +80,7 @@ countOccurences combos target = map countAndFormat combos
         incReducer :: [String] -> Int -> [String] -> Int
         incReducer sublist counter list =
           bool (counter) (counter + 1) (contained sublist list)
+
 
 contained :: (Ord a) => [a] -> [a] -> Bool
 contained [] _ = False
