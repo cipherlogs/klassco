@@ -300,6 +300,8 @@ handleArgs args
               let cleanClassData = (\(f, x) -> (f, map (clean . filterClasses) x))
 
               numOfThreads <- getNumCapabilities
+              setNumCapabilities numOfThreads
+
               let threads =
                     show numOfThreads ++ " CPU thread" ++ (numOfThreads > 1 ? ("s", ""))
 
