@@ -41,7 +41,9 @@ library
     , deepseq
     , directory
     , filepath
+    , parallel
     , regex-tdfa
+    , unordered-containers
   default-language: Haskell2010
 
 executable Klassco-exe
@@ -59,7 +61,9 @@ executable Klassco-exe
     , deepseq
     , directory
     , filepath
+    , parallel
     , regex-tdfa
+    , unordered-containers
   default-language: Haskell2010
 
 test-suite Klassco-test
@@ -78,5 +82,7 @@ test-suite Klassco-test
     , deepseq
     , directory
     , filepath
+    , parallel
     , regex-tdfa
+    , unordered-containers
   default-language: Haskell2010

@@ -8,7 +8,8 @@ import System.FilePath ((</>))
 import Control.Monad ((<=<), (>=>), forM_)
 import Control.DeepSeq (NFData, deepseq, force)
 import Control.Concurrent
-import Control.Arrow
+import Control.Parallel.Strategies
+import Control.Arrow (second)
 import Data.List (isSuffixOf, isPrefixOf, isInfixOf, nub, sort)
 import Data.Foldable (foldl')
 import Data.Maybe
@@ -21,6 +22,9 @@ import Logo
 
 type ClassData = (FilePath, [[String]])
 type ClassDuplicates = (FilePath, [(String, Int)])
+
+pMap :: NFData b => (a -> b) -> [a] -> [b]
+pMap = parMap rpar
 
 printHelp :: IO ()
 printHelp =
