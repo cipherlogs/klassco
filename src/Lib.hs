@@ -8,6 +8,9 @@ import Control.Monad (guard, when, forM_)
 import Control.Applicative (liftA2)
 import Math.Combinat (choose)
 import Text.Printf
+import Control.Parallel.Strategies
+import qualified Data.HashMap.Strict as HashMap
+import Control.Arrow
 
 infixl 1 ?
 (?) :: Bool -> (a, a) -> a
@@ -69,7 +72,7 @@ concatClassNames :: [String] -> String
 concatClassNames = intercalate ", " . sort
 
 countOccurences :: [[String]] -> [[String]] -> [(String, Int)]
-countOccurences combos target = map countAndFormat combos
+countOccurences combos target = parMap rdeepseq countAndFormat combos
 
   where countAndFormat :: [String] -> (String, Int)
         countAndFormat x = (concatClassNames x, countDuplicates x target)
@@ -88,7 +91,7 @@ contained _ [] = False
 contained sublist list = all (`elem` list) sublist
 
 countOccurencesEach :: [[String]] -> [[String]] -> [(String, Int)]
-countOccurencesEach combos target = map countAndFormat combos
+countOccurencesEach combos target = parMap rdeepseq countAndFormat combos
 
   where countAndFormat :: [String] -> (String, Int)
         countAndFormat x = (concatClassNames x, countDuplicates x target)
@@ -193,6 +196,19 @@ describeComboCount n
   | otherwise = show n ++ " possible duplicates"
 
 
+countDups :: Int -> [[String]] -> [(String, Int)]
+countDups n xs = HashMap.toList $ foldl' updateCount HashMap.empty foundCombos
+  where
+    updateCount acc str = HashMap.insertWith (+) str 1 acc
+    foundCombos = concat . parMap rpar (map concatClassNames . genCombos n) $ xs
+
+countGlobalDups :: [(FilePath, [(String, Int)])] -> [(String, [(FilePath, Int)])]
+countGlobalDups = HashMap.toList . foldl' push HashMap.empty
+  where
+    push acc (file, classData) = foldl' (toHash file) acc classData
+    toHash file acc (name, count) = HashMap.insertWith (++) name [(file, count)] acc
+
+
 
 -- main :: IO ()
--- main = print . show $ countOccurences combos target
+-- main = print . show $ countGlobalDups target
