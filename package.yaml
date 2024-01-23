@@ -27,7 +27,9 @@ dependencies:
 - combinat
 - deepseq
 - ansi-terminal
-
+- parallel
+- unordered-containers
+- combinat
 
 ghc-options:
 - -Wall
