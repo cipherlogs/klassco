@@ -397,6 +397,4 @@ handleArgs args
           . listToMaybe
 
         getSummaryCount :: ClassDuplicates -> Int
-        getSummaryCount (_, xs)
-          | length xs == 1 = (snd . head $ xs)
-          | otherwise = (snd . head $ xs)
+        getSummaryCount = snd . head . snd
