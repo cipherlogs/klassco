@@ -339,35 +339,28 @@ handleArgs args
               putStr ("+ Extracting\n")
               progressId <- forkIO $ showProgress 2
 
-              let countDuplicates = minCombo == 1 ? (countOccurencesEach, countOccurences)
-              let getDuplicates = keepGt (canGlobalSearch ? (0, 1)) .: countDuplicates
+              let extractDuplicates = keepGt (canGlobalSearch ? (0, 1)) . go
+                    where
+                      go = min == 1 ? (concatMap (count . (:[])), count)
+                      count = countDups min
 
-              let extractDuplicates xs =
-                    if min == 1
-                       then concat . map (\x -> getDuplicates combos [x]) $ xs
-                       else getDuplicates combos xs
-                         where
-                           combos =
-                             nub
-                             . concatMap (sort . genCombos min)
-                             . nub
-                             . map (sort)
-                             . filter ((>=min) . length)
-                             $ xs
 
               let cutFrom = takeN maxDisplay
+
               let result =
                       (canFilterAll ? (cutFrom, fmap $ second cutFrom))
                     . (\x -> isSummarized x ? (sortWith getSummaryCount x, x))
-                    . (canGlobalSearch ? (processAll, id))
+                    . (canGlobalSearch ? (countGlobalDups, id))
                     . filter (hasClasses)
-                    . map (second $ sortWith snd)
-                    . map (canShowSummary ? (summarize, id))
-                    . map (second extractDuplicates)
+                    . pMap (second $ sortWith snd)
+                    . pMap (canShowSummary ? (summarize, id))
+                    . pMap (second extractDuplicates)
                     $ allClassData
 
+              --
               -- Output
-              forM_ result printClasses
+              forM_ (result) printClasses
+              length result == 0 ? (putStrLn "\n+ Nothing was found", return ())
               result `deepseq` killThread progressId
               canShowTotal ? (printTotal result, return ())
 
@@ -407,24 +400,3 @@ handleArgs args
         getSummaryCount (_, xs)
           | length xs == 1 = (snd . head $ xs)
           | otherwise = (snd . head $ xs)
-
-
-        processAll :: [ClassDuplicates] -> [(String, [(String, Int)])]
-        processAll xs = mapMaybe (fromAll xs) foundCombos
-
-          where
-            foundCombos :: [String]
-            foundCombos = nub . concatMap (map fst . snd) $ xs
-
-            fromAll :: [ClassDuplicates] -> String -> Maybe ClassDuplicates
-            fromAll xs combo =
-              (\x -> length x > 1 ? (Just (combo, x), Nothing))
-              . filter ((>1) . snd)
-              . map (\(file, ys) -> (file, getComboCount combo ys))
-              $ xs
-
-            getComboCount :: String -> [(String, Int)] -> Int
-            getComboCount combo =
-              maybe 0 snd
-              . listToMaybe
-              . filter ((== combo) . fst)
