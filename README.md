@@ -24,6 +24,16 @@ $ npm install -g klassco
 ```
 
 
+<br />
+
+## Contribution
+I highly value contributions to improve and enhance the documentation. If
+you're passionate about clarity and want to make the project more accessible
+to everyone, contributing to the documentation is a fantastic way to get
+involved.
+
+See the [CONTRIBUTING](./CONTRIBUTING.md) file for details.
+
 
 <br />
 
