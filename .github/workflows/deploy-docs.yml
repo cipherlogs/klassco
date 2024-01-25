@@ -1,8 +1,8 @@
 name: Deploy static content to Pages
 on:
   push:
-    path:
-      - 'docs/**'
+    paths:
+      - './docs/**'
 
   workflow_dispatch:
 
