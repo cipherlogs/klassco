@@ -65,26 +65,26 @@ avoided this mental overhead. For example:
 className={`${modern("wrapper")} center-x`}
 ```
 
-This tells us immediately that we have a modernized wrapper centered along the
-x-axis.
+This immediately informs us that we have a modernized wrapper aligned along
+the x-axis.
 
-The `modern()` utility can handle various types including forms, buttons,
-inputs, etc. and it is smart enough to give the given type a modern look to
-it, by rounding corners, adding shadows, hover effects, active states, etc.
+In this example, the `modern()` utility is smart enough to give a modern look
+to wherever type was given to it (input, form, div, wrapper) and incorporate
+rounded corners, shadows, hover effects, active states, and more, tailored to
+the specific type.
 
-The `center` utility takes care of centering, regardless of whether it's
-flexbox, block, or grid or wherever.
+The `center` utility efficiently manages centering, adapting seamlessly to
+various contexts like flexbox, block, or grid layouts.
 
-These example utilities abstracted useless low level details from us, if I
-want to center something I just need to say center and that's it, why should I
-always have to think about what display is it, is it flexbox, in that case is
-the direction column or row, should I use justify-content or align items
+These example utilities abstract away cumbersome low-level details, sparing us
+the need to delve into intricacies. When I wish to center something, I simply
+use the 'center' util – no need to consider the display type, whether
+it's flexbox, the direction (column or row), or whether to use justify-content
+or align items.
 
-That's a complete waste of time.
-
-So realistacally the time it takes to create a 7-class combination can range from 1 to 15
-minutes, and that's assuming no bugs. Revisiting the component later requires
-the same mental overhead to recall the purpose of each class.
+So realistacally the time it takes to create a 7-class combination can range
+from 1 to 15 minutes, and that's assuming no bugs. Revisiting the component
+later requires the same mental overhead to recall the purpose of each class.
 
 If we conservatively estimate just 5 minutes per combination, the time wasted
 on our preliminary scan alone equates to nearly 8 months. **What's worse, this
