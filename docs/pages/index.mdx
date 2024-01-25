@@ -1,16 +1,14 @@
 import { Callout, Steps } from 'nextra/components'
-import {Red} from '../Text.jsx'
+import {Red} from '../Text'
 
 
-# The 8-Month Time and Resource Drain
-
-
-Would you like to know the <Red text="time and effort that was wasted" /> by the devs who
-created `tailwindcss.com`.
+# 8 Months Of Waste?
+Would you like to know the <ins>time and effort</ins> that was wasted by the
+devs who created `tailwindcss.com`.
 
 As the creators of `Tailwind CSS`, they could serve as a benchmark for other
-developers using Tailwind. If we uncover inefficiencies here, it could suggest
-even greater inefficiencies among less experienced Tailwind users.
+developers using Tailwind CSS. If we uncover inefficiencies here, it could
+suggest even greater inefficiencies among less experienced Tailwind users.
 
 Let's scan their source code using Klassco
 
@@ -40,11 +38,8 @@ Can you imagine the total if we included those? Half a million? A million?
 **Neither would surprise me**.
 
 
+<br />
 ## The Hidden Cost
-Assuming it takes a minute to create a combination of 7 classes, our
-preliminary scan reported 67000 duplicates. That equates to 46 days of wasted
-time.
-
 Consider this class combination:
 
 ```js
@@ -54,12 +49,28 @@ className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md flex items-center 
 It takes time to decipher each class and understand their collective purpose.
 Even then, the overall context remains unclear.
 
-Modifying this combination requires understanding how each class interacts,
-making the necessary changes, and then verifying the result. This process
-repeats until the desired outcome is achieved.
+To modify this combination, one must understand how each class interacts, make
+the necessary changes, and then verify the result. This process repeats until
+the desired outcome is achieved.
 
+Realistacally the time it takes to create a 7-class combination can range
+from 1 to 15 minutes, and that's assuming no bugs. Revisiting the component
+later requires the same mental overhead to recall the purpose of each class.
+
+If we conservatively estimate just 5 minutes per combination, the time wasted
+on our preliminary scan alone equates to nearly 8 months. **What's worse, this
+time and effort will be wasted again in the next project, and the next, and
+the next.**
+
+If you are unhappy with the 5-minute time limit per combination, note
+that I have only accounted for duplicates of length 7. The total waste across
+all lengths is staggering.
+
+
+<br />
+## DRY
 If we had abstracted these classes into higher-level utilities, we could have
-avoided this mental overhead. For example:
+avoided this mental overhead.
 
 ```js
 className={`${modern("wrapper")} center-x`}
@@ -77,32 +88,35 @@ The `center` utility efficiently manages centering, adapting seamlessly to
 various contexts like flexbox, block, or grid layouts.
 
 These example utilities abstract away cumbersome low-level details, sparing us
-the need to delve into intricacies. When I wish to center something, I simply
-use the 'center' util – no need to consider the display type, whether
-it's flexbox, the direction (column or row), or whether to use justify-content
-or align items.
+the need to delve into intricacies.
 
-So realistacally the time it takes to create a 7-class combination can range
-from 1 to 15 minutes, and that's assuming no bugs. Revisiting the component
-later requires the same mental overhead to recall the purpose of each class.
+If I wish to center something, I should simply use the 'center' utility – no
+need to consider the display type, whether it's flexbox, the direction (column
+or row), or whether to use justify-content or align-items.
 
-If we conservatively estimate just 5 minutes per combination, the time wasted
-on our preliminary scan alone equates to nearly 8 months. **What's worse, this
-time and effort will be wasted again in your next project, and the next, and
-the next.**
+**This eliminates unnecessary time wastage.**
 
-And remember, this only accounts for duplicates of length 7. The total waste
-across all lengths is staggering.
-
-
-![Adam tweet about @apply](../public/adam-tweet.png)
-I concur with Adam. However, Tailwind's low-level utilities lack the ability
-to build higher-level abstractions. This is where Klassco steps in, addressing
-the shortcomings of Tailwind's `@apply`
 
 
 <br />
-## How it works?
+## The Failure
+![Adam tweet about @apply](../public/adam-tweet.png)
+
+TailwindCSS, Windi CSS, and UnoCSS are all examples of CSS frameworks that
+provide low-level utilities and lack the ability to build higher-level
+abstractions.
+
+While UI kits like ChakraUI, ShadcnUI, and NextUI may seem like a higher
+abstraction, they are only acceptable <Red text="if you make zero
+customizations to them" />, but as soon as you start using CSS to modify each
+component to your need and liking, you are back to square one.
+
+
+**This is Why Klassco was born**.
+
+
+<br />
+## How Does Klassco Work?
 It scans all of your HTML files, JavaScript components, and other
 templates for class names to help you reuse styles and remove any duplicates.
 
@@ -128,8 +142,10 @@ redundancy**.
 
 <br />
 ## Next Steps
-The next step is to understand why every team and developer should integrate
-Klassco. By examining the amount of time and effort it saves, you can see the
-benefits of using this tool.
+The next step is understand how you can abstract and start building with
+Klassco.
 
 - [Why Klassco [&#8599;]](../core-concepts/why-klassco)
+- [How to Abstract [&#8599;]](../core-concepts/how-to-abstract)
+- [Installation [&#8599;]](../basic-usage/installation)
+- [Quick Start [&#8599;]](../basic-usage/usage)
