@@ -1,7 +1,8 @@
 name: Deploy static content to Pages
 on:
   push:
-    branches: ['main']
+    path:
+      - 'docs/**'
 
   workflow_dispatch:
 
@@ -24,17 +25,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set Node and PNPM
-        uses: wyvox/action-setup-pnpm@v3.0.1
-
-      - name: Navigate to docs folder
+      - name: Change to docs directory
         run: cd docs
 
+      - name: Set Node and PNPM
+        uses: actions/setup-node@v4.0.1
+
+      - name: Install PNPM
+        run: |
+          cd docs
+          npm -g i pnpm
+
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          cd docs
+          pnpm install
 
       - name: Build
-        run: pnpm build
+        run: |
+          cd docs
+          pnpm build
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
@@ -42,7 +52,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: './dist'
+          path: './docs/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
