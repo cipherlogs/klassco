@@ -1,0 +1,37 @@
+import { Callout } from 'nextra/components'
+
+
+# Understanding `-t` and `--total`
+The behavior of `-t` or `--total` is contingent on the other flags and options
+it's composed with.
+
+Instead of viewing `-t` as a flag that displays the total number of
+duplications found, it's more accurate to perceive `-t` as an optionn that
+sums up the final results displayed by Klassco's output.
+
+For instance:
+
+- `klassco -t src` outputs the total number of duplicates within `src`.
+
+- `klassco -t -g src` outputs the total number of common duplicates within `src`.
+
+- `klassco -t -s src` outputs the total number of unique duplicates within `src`.
+
+
+These are just basic examples. The key takeaway is that Klassco provides
+composable flags, which adapt and change based on how you compose them.
+
+
+<Callout type="info">
+In the current version of Klassco, using `-t` is more verbose as it also
+displays other results, not just the total sum. If you prefer to only see the
+total sum and use `--verbose` when needed, please check the `dev` branch to
+start using these options.
+</Callout>
+
+
+## next steps
+- [Composable Flags [&#8599;]](../core-concepts/key-features)
+- [Quick Recipes [&#8599;]](../basic-usage/quick-recipes) provides useful
+  examples for your daily workflow.
+

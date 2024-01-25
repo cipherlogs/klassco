@@ -24,11 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Navigate to docs folder
-        run: cd docs
-
       - name: Set Node and PNPM
         uses: wyvox/action-setup-pnpm@v3.0.1
+
+      - name: Navigate to docs folder
+        run: cd docs
 
       - name: Install dependencies
         run: pnpm install

@@ -1,0 +1,135 @@
+import { Callout, Steps } from 'nextra/components'
+import {Red} from '../Text.jsx'
+
+
+# The 8-Month Time and Resource Drain
+
+
+Would you like to know the <Red text="time and effort that was wasted" /> by the devs who
+created `tailwindcss.com`.
+
+As the creators of `Tailwind CSS`, they could serve as a benchmark for other
+developers using Tailwind. If we uncover inefficiencies here, it could suggest
+even greater inefficiencies among less experienced Tailwind users.
+
+Let's scan their source code using Klassco
+
+<Steps>
+### Get the source code of `tailwindcss.com`
+
+```bash
+$ git clone https://github.com/tailwindlabs/tailwindcss.com
+$ cd tailwindcss.com
+```
+
+### Scan the `src` folder
+
+```bash {4}
+$ klassco -m 7 -t src
+
+---
+67020 duplicates so far...
+```
+</Steps>
+
+**Sixty seven thousand duplicates** and counting. This scan only accounted for
+duplicates of length 7 `-m 7`, excluding duplicates of lengths 2, 3, 4, and so
+on.
+
+Can you imagine the total if we included those? Half a million? A million?
+**Neither would surprise me**.
+
+
+## The Hidden Cost
+Assuming it takes a minute to create a combination of 7 classes, our
+preliminary scan reported 67000 duplicates. That equates to 46 days of wasted
+time.
+
+Consider this class combination:
+
+```js
+className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md flex items-center space-x-4"
+```
+
+It takes time to decipher each class and understand their collective purpose.
+Even then, the overall context remains unclear.
+
+Modifying this combination requires understanding how each class interacts,
+making the necessary changes, and then verifying the result. This process
+repeats until the desired outcome is achieved.
+
+If we had abstracted these classes into higher-level utilities, we could have
+avoided this mental overhead. For example:
+
+```js
+className={`${modern("wrapper")} center-x`}
+```
+
+This tells us immediately that we have a modernized wrapper centered along the
+x-axis.
+
+The `modern()` utility can handle various types including forms, buttons,
+inputs, etc. and it is smart enough to give the given type a modern look to
+it, by rounding corners, adding shadows, hover effects, active states, etc.
+
+The `center` utility takes care of centering, regardless of whether it's
+flexbox, block, or grid or wherever.
+
+These example utilities abstracted useless low level details from us, if I
+want to center something I just need to say center and that's it, why should I
+always have to think about what display is it, is it flexbox, in that case is
+the direction column or row, should I use justify-content or align items
+
+That's a complete waste of time.
+
+So realistacally the time it takes to create a 7-class combination can range from 1 to 15
+minutes, and that's assuming no bugs. Revisiting the component later requires
+the same mental overhead to recall the purpose of each class.
+
+If we conservatively estimate just 5 minutes per combination, the time wasted
+on our preliminary scan alone equates to nearly 8 months. **What's worse, this
+time and effort will be wasted again in your next project, and the next, and
+the next.**
+
+And remember, this only accounts for duplicates of length 7. The total waste
+across all lengths is staggering.
+
+
+![Adam tweet about @apply](../public/adam-tweet.png)
+I concur with Adam. However, Tailwind's low-level utilities lack the ability
+to build higher-level abstractions. This is where Klassco steps in, addressing
+the shortcomings of Tailwind's `@apply`
+
+
+<br />
+## How it works?
+It scans all of your HTML files, JavaScript components, and other
+templates for class names to help you reuse styles and remove any duplicates.
+
+Klassco uses mathematical combinations to thoroughly explore and analyze
+**every imaginable combination** of your CSS classes, to help you identify
+subtle patterns, spot redundancies, and create a carefully curated selection
+of unique class combinations.
+
+It solves the problem that front-end framework components cannot solve when it
+comes to CSS.
+
+**Klassco is designed to save you time and effor.**
+
+
+## But, I don't use Tailwind
+Tailwind was just an example, repetition is inevitable . As projects scale,
+managing this repetition becomes increasingly challenging.
+
+This is true for all methodologies, modular methodologies like BEM and atomic
+approaches like Tailwind, where utility classes will lead to **extensive
+redundancy**.
+
+
+<br />
+## Next Steps
+The next step is to understand why every team and developer should integrate
+Klassco. By examining the amount of time and effort it saves, you can see the
+benefits of using this tool.
+
+- [Why Klassco [&#8599;]](../core-concepts/why-klassco)

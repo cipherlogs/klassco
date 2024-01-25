@@ -1,0 +1,66 @@
+# Identifying Unique Duplications
+
+Let's consider the following code:
+
+```html {1,2,5,6} filename="index.html"
+<div className="classB classD classE classA classC">
+  <p className="classE">Three</p>
+</div>
+
+<div className="classD classE classD">
+  <p className="classE classD">Four</p>
+</div>
+```
+When we scan `index.html` with Klassco, we get the following results:
+
+
+```bash {5}
+$ klassco index.html
+
++ index.html:
+        classD, classE
+        duplicated 3 times.
+```
+
+The class combination `classD classE` appears 3 times within the file. The key
+insight here is that `index.html` has only one unique class combination
+duplication.
+
+
+To identify the number of unique class combination duplications in each file,
+we can use Klassco:
+
+
+```bash {4}
+$ klassco index.html
+
++ index.html:
+        found 1 duplicate.
+```
+
+<br />
+
+### Which has the most duplicates [#most-duplicates]
+This information is useful for identifying which files contain the most
+duplications and require significant work.
+
+```bash
+$ klassco -s --desc -d 1 src
+```
+
+In this command, we're searching for the file in the `src` folder that
+requires the most refactoring.
+
+By using `-s`, we instruct Klassco to report only the number of unique
+duplicates in each file. We then sort the results in descending order and
+display only the top result. So, if `src` contains 10000 components, we'll
+easily identify the components that require the most refactoring.
+
+
+<br />
+## Next steps
+- [Quick Recipes [&#8599;]](../basic-usage/quick-recipes) provides useful
+  examples for your daily workflow.
+
+- [Composable Flags [&#8599;]](../core-concepts/key-features)
+- [How to Abstract [&#8599;]](../core-concepts/how-to-abstract)

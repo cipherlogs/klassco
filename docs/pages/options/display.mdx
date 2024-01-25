@@ -1,0 +1,152 @@
+# Managing Output Control
+The current version of Klassco is verbose by default, providing all possible
+results. While this can be helpful, it might be overwhelming, especially for
+large projects.
+
+Consider the following output:
+
+```bash {3,10,12,22,25}
+$ klassco src/
+
++ src/file1.js:
+      absolute, inset-x-0
+      duplicated 3 times.
+
+      -z-10, absolute
+      duplicated 2 times.
+
+      ... and many more duplicates were found in file1.js
+
++ src/file2.js:
+      blur-3xl, inset-x-0
+      duplicated 2 times.
+
+      fixed, z-50
+      duplicated 2 times.
+
+      flex, items-center
+      duplicated 3 times.
+
+  ... and many more results were found in file2.js
+
+
+... still more files
+```
+
+In this example, running Klassco on `src` yields an extensive amount of
+information. To streamline this, it's beneficial to specify what you're
+looking for.
+
+
+<br />
+For instance, you might only want to see the first 2 results of each file
+within `src`:
+
+
+```bash
+$ klassco -d 3 src
+
++ src/file1.js
+      result1
+      duplicated n times.
+
+      result2
+      duplicated n times.
+
++ src/file2.js
+      result1
+      duplicated n times.
+
+      result2
+      duplicated n times.
+
++ src/file3.js
+      result1
+      duplicated n times.
+
+      result2
+      duplicated n times.
+```
+
+<br />
+Or perhaps you're interested in the highest combo class duplications found in
+each file:
+
+
+```bash
+$ klassco --desc -d 1 src
+
++ src/file1.js
+      hover:bg-slate-100, hover:text-slate-900
+      duplicated 4 times.
+
+
++ src/file2.js
+      flex, items-center
+      duplicated 3 times.
+
+
++ src/file3.js
+      flex, items-center
+      duplicated 5 times.
+...
+```
+
+<br />
+Alternatively, you might want to identify the **top 3** files with the most
+duplications:
+
+```bash
+$ klassco --desc -d 3 -s src
+
++ src/BuildAnything.js
+      found 373 duplicates.
+
++ src/ComponentDriven.js
+      found 184 duplicates.
+
++ src/MobileFirst.js
+      found 114 duplicates.
+```
+
+<br />
+The previous command sorts everything in descending order. If you'd prefer to
+filter files with the least amount of duplication, you can use `--asc` or
+provide a negative number to `-d` to select 3 results from the bottom:
+
+```bash
+$ klassco --desc -d -3 -s src
+
++ src/shadow.html
+      found 1 duplicate.
+
++ src/SpacingScale.js
+      found 1 duplicate.
+
++ src/Responsive.js
+      found 1 duplicate.
+```
+
+
+<br />
+## Conclusion
+This guide provided examples on how to tailor Klassco's output to your
+specific needs. You learned how to use positive and negative numbers with `-d`
+or `--display` to select results from the top or bottom.
+
+Klassco's verbosity by default is designed to make it as easy and quick as
+possible to get the information you need.
+
+The `dev` branch offers a less verbose version where you must explicitly use
+the `--verbose` flag. However, this might require additional flags to specify
+your needs. Ultimately, both versions offer similar functionality, and it's
+often easier to pare down information than to add it.
+
+
+<br />
+## Next steps
+- [Quick Recipes [&#8599;]](../basic-usage/quick-recipes) provides useful
+  examples for your daily workflow.
+
+- [Composable Flags [&#8599;]](../core-concepts/key-features)
+- [How to Abstract [&#8599;]](../core-concepts/how-to-abstract)

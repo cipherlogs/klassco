@@ -1,0 +1,111 @@
+import {Callout, Image} from "nextra/components"
+
+# Minimum Class Combinations
+Consider this code snippet:
+
+```js filename="example.jsx" {4,5,8,9}
+const Box = props => {
+  return (
+    <>
+      <div className="classE classA classB classC classD">
+        <p className="classE">One</p>
+      </div>
+
+      <div className="classF classG classC classD classE">
+        <p className="classE">Two</p>
+      </div>
+    </>
+  );
+};
+```
+
+Could you quickly spot all duplicate class combinations of length 2 just
+by eye?
+
+Klassco can help:
+
+```bash
+$ klassco example.jsx
+
++ example.jsx:
+    classC, classD          duplicated 2 times.
+    classC, classE          duplicated 2 times.
+    classD, classE          duplicated 2 times.
+```
+
+
+<br />
+By default, Klassco searches for duplications of length `2`, but you can
+specify a higher length:
+
+```bash
+$ klassco -m 3 example.jsx
+
++ example.jsx:
+          classC, classD, classE
+          duplicated 2 times.
+```
+
+<Callout type="info">
+The `-m` or `--min` flag is used to specify the length of class combinations
+to scan for duplicates.
+
+*By default `-m` is set to `2`*
+</Callout>
+
+
+
+<br />
+## Handling Single Class Duplications
+Consider the following example:
+
+
+```html /classE/
+<div className="classE classA classB classC classD">
+  <p className="classE">One</p>
+</div>
+```
+Here, `classE` is duplicated twice. However, when the `-m` is set to
+`1`, Klassco will identifies unnecessary repetitions of the same class:
+
+```html /classA/1,2
+<div className="classA classB classA">
+  <p className="classA classE">Hello world!</p>
+</div>
+```
+
+In the above example, `classA classB classA` is equivalent to `classB classA`,
+indicating a needless duplication.
+
+
+<br />
+Klassco can also help identify less obvious duplications:
+
+```html filename="index.html"
+<div class="sm:flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300
+focus-within:ring-2 focus-within:ring-inset lg:flex focus-within:ring-indigo-600 sm:max-w-md">
+```
+
+In this case, `sm:flex` and `lg:flex` are redundant, as are `ring-inset` and
+`focus-within:ring-inset`. Klassco can detect these duplications:
+
+```bash
+$ klassco -m 1 index.html
+
++ inex.html:
+        flex
+        duplicated 2 times.
+
+        ring-inset
+        duplicated 2 times.
+```
+
+<br />
+## Optimal Length for Duplication Search
+When creating abstractions, start with smaller duplication lengths. Jumping
+directly to larger lengths might lead to more chaos. An optimal codebase
+usually has duplication lengths of 2. If `klassco -m 3` and above reveals
+duplicates in your project, *it's time to refactor*.
+
+To use Klassco the right way, it's recommended to read [How to abstract [&#8599;]](../core-concepts/how-to-abstract).
+

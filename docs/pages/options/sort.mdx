@@ -1,0 +1,57 @@
+# Sorting in Klassco
+By default, Klassco displays results in the order they were found, without any
+sorting.
+
+However, you can easily sort the output in ascending or descending order. This
+guide will show you how, building on what you learned in [Composable Flags
+[&#8599;]](../core-concepts/key-features).
+
+
+<br />
+## Examples
+**Sort from lowest to highest duplication:**
+
+```bash
+$ klassco --asc
+```
+
+**Sort from highest to lowest duplication:**
+
+```bash
+$ klassco --desc
+```
+
+<br />
+
+Sorting can be useful when narrowing down your search. For instance, to find
+the file with the least amount of duplicated combo classes, use:
+
+```bash
+$ klassco -s --asc -d 1 src
+```
+
+To find the class combo that's least duplicated across all files in the `src`
+folder, use:
+
+```bash
+$ klassco -s -g --asc -d 1 src
+```
+
+<br />
+## conclusion
+Klassco allows you to easily sort your final output. This feature is
+particularly useful when working on large codebases and determining which
+parts to prioritize for refactoring.
+
+For more examples of creative uses of these features, please refer to the
+references in the **Next Steps** section.
+
+
+<br />
+## Next steps
+- [Quick Recipes [&#8599;]](../basic-usage/quick-recipes) provides useful
+  examples for your daily workflow.
+
+- [Controlling Output [&#8599;]](../options/display)
+- [How to Abstract [&#8599;]](../core-concepts/how-to-abstract)
+- [All Options [&#8599;]](../options)

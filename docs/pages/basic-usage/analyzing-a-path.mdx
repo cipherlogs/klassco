@@ -1,0 +1,142 @@
+import {Callout, FileTree, Steps} from "nextra/components";
+
+# File Path vs Directory Path
+Consider the following file structure:
+
+<FileTree>
+  <FileTree.Folder name="src" defaultOpen>
+    <FileTree.File name="A.jsx" />
+    <FileTree.File name="B.jsx" />
+  </FileTree.Folder>
+</FileTree>
+
+The `src` folder houses two components, `A` and `B`.
+Let's say we're about to create a new component `C`, without any prior
+knowledge of the contents of `A` and `B`.
+
+After 20 minutes, component `C` is ready.
+
+<Callout type="warning">
+Note that while developing `C`, there was no need to consider abstraction or
+use Klassco. The development workflow remained **unchanged**.
+</Callout>
+
+Now, it's time to review and improve our code.
+
+<Steps>
+### Step 1
+Start by analyzing `C.jsx` independently.
+
+```bash
+$ klassco C.jsx
+```
+
+We can begin by modifying `C` and removing duplicates. However, it may be
+beneficial to hold off on these modifications until we perform the next step.
+Klassco can provide us with an overview of other duplications that may be
+occurring in nearby components.
+
+
+### Step 2
+After analyzing `C.jsx`, it's time to get a broader view of all components
+within the `src` folder.
+
+```bash
+$ klassco src
+```
+
+This step helps identify duplications in nearby components and provides
+insights into potential duplication patterns that may arise in the future.
+
+Now, we're equipped to make meaningful changes to `C.jsx`.
+
+### Step 3
+The bonus step involves instructing Klassco to perform a comprehensive scan of
+all files **in relation to each other**.
+
+```bash
+$ klassco -g src
+```
+
+By extracting only the repetitions that are present across `A`, `B`, and `C`,
+we can address these duplications and create better abstractions for future
+components.
+</Steps>
+
+
+<br />
+## Keep in Mind
+As you write more code, the process will be repeated multiple times. The
+advantage of Klassco is that it aids in making informed decisions by providing
+the ability to **zoom in** and **out** before finalizing a decision.
+
+
+<br />
+## Excluding Specific Files
+<FileTree>
+  <FileTree.Folder name="components" defaultOpen>
+    <FileTree.File name="Hero.jsx" />
+    <FileTree.File name="Team.jsx" />
+    <FileTree.File name="Pricing.jsx" />
+    <FileTree.File name="Contact.jsx" />
+    <br />
+
+    <FileTree.Folder name="foundation" defaultOpen>
+      <FileTree.File name="Modal.jsx" />
+      <FileTree.File name="Table.jsx" />
+      <FileTree.File name="Form.jsx" />
+
+      <br />
+      <FileTree.Folder name="elementary" defaultOpen>
+        <FileTree.File name="Button.jsx" />
+        <FileTree.File name="Checkbox.jsx" />
+        <FileTree.File name="Radio.jsx" />
+
+        <br />
+        <FileTree.Folder name="base" defaultOpen>
+          <FileTree.File name="Text.jsx" />
+          <FileTree.File name="Image.jsx" />
+          <FileTree.File name="Link.jsx" />
+        </FileTree.Folder>
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+
+The file structure above uses nested folders to represent a hierarchy flow,
+with higher-level components at the top and lower-level components at the
+bottom. Each abstracted layer can only access the layer underneath it, meaning
+that `Hero`, `Team`, `Pricing`, and `Contact` were only built by the
+components found in `foundation`, and they are not allowed to go two layers
+deep. The same rule applies to the rest.
+
+The aim is to create highly modular components, broken down into smaller
+pieces for reuse by higher-level components. Therefore, every time you create
+a new abstraction layer, you need to abstract it well, so that the future
+layer that will come next will never need to go two layers deep.
+
+Klassco encourages this file structure that supports layering, and by not
+offering an option to exclude files or folders from the search, when this
+structure is used, you are forced to make good design. If a directory path
+includes files you wish to exclude from the scan, it’s an indication that they
+should be relocated.
+
+For more information, please read [How to abstract
+[&#8599;]](../core-concepts/how-to-abstract).
+
+
+<Callout type="warning">
+Please note that you can use any file structure you
+want. However, once you start nesting folders, Klassco will switch to the
+modular mode that’s explained above.
+</Callout>
+
+<Callout type="info">
+The `dev` branch of Klassco includes a `--no-recursive` feature, allowing you to scan only the contents of a folder, excluding its subfolders.
+</Callout>
+
+
+<br />
+## Next Steps
+[How to abstract [&#8599;]](../core-concepts/how-to-abstract).

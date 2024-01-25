@@ -1,0 +1,81 @@
+# Refining Your Search
+By default, Klassco scans all available classes. However, there may be
+instances where you want to focus on specific classes. This guide will
+demonstrate how to do so using `-f` or `--find`.
+
+Class naming conventions vary across methodologies, resulting in a range of
+formats such as: `menu`, `menu__item`, `hover:bg-gray-50`, and `menu__item--visible`.
+
+
+<br />
+## Examples
+
+**To filter classes without prefixes or infixes:**
+
+```bash
+$ klassco -f none
+```
+
+<br />
+**To filter classes with specific modifiers only:**
+
+```bash
+$ klassco -f "--visible --hidden --disabled --active"
+```
+
+<br />
+**To mix different styles (prefixes and infixes):**
+
+```bash
+$ klassco -f "dark: hover: --visible __item"
+```
+
+<br />
+**To select Tailwind prefixes:**
+
+```bash
+$ klassco -f "dark: hover:"
+```
+
+Even with complex prefixes:
+
+```bash
+$ klassco -f "dark:md:hover:active:focus"
+```
+
+To simplify the process further, there's no need to provide the correct order.
+Klassco will figure it out:
+
+
+```bash
+$ klassco -f "dark:md:hover:active:focus"
+
+or
+
+$ klassco -f "active:md:dark:active:focus"
+
+or
+
+$ klassco -f "focus:active:dark:md:hover"
+
+etc ...
+```
+
+
+
+<br />
+## Conclusion
+This guide has demonstrated how to refine your search in Klassco using the
+`-f` or `--find` flags. By specifying your search criteria, you can focus on
+specific classes, making your search more efficient and targeted. Whether
+you're dealing with simple or complex prefixes, Klassco has the flexibility to
+handle your needs. 
+
+<br />
+## Next steps
+- [Quick Recipes [&#8599;]](../basic-usage/quick-recipes) provides useful
+  examples for your daily workflow.
+
+- [Composable Flags [&#8599;]](../core-concepts/key-features)
+- [All Options [&#8599;]](../options)
+- [How to Abstract [&#8599;]](../core-concepts/how-to-abstract)

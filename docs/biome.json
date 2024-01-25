@@ -1,0 +1,15 @@
+{
+  "formatter": {
+    "formatWithErrors": true,
+    "indentStyle": "space",
+    "lineWidth": 78,
+    "lineEnding": "lf",
+    "ignore": []
+  },
+  "javascript": {
+    "formatter": {
+      "bracketSpacing": false,
+      "arrowParentheses": "asNeeded"
+    }
+  }
+}

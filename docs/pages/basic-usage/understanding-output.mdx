@@ -1,0 +1,67 @@
+import {Callout} from "nextra/components"
+
+
+# Interpreting the Output
+The output of Klassco can change depending on the flags used. This might be
+confusing if you're not accustomed to composable flags.
+
+In this brief guide, we'll explore a small example to give you a basic
+understanding. However, for a comprehensive understanding, please refer to
+[Composable Flags [&#8599;]](../core-concepts/key-features).
+
+
+Consider the following code:
+
+```html {1,2,5,6} filename="index.html"
+<div className="classB classD classE classA classC">
+  <p className="classE">Three</p>
+</div>
+
+<div className="classD classE classD">
+  <p className="classE classD">Four</p>
+</div>
+```
+
+Scanning `index.html` with Klassco will yield the following results:
+
+```bash {5}
+$ klassco index.html
+
++ index.html:
+        classD, classE
+        duplicated 3 times.
+```
+
+Here, `classD` and `classE` are duplicated 3 times within `index.html`.
+However, in larger files or projects, you might be more interested in the
+number of unique duplicates rather than the total number of duplications. For
+this, you can use the summary flag `-s` or `--summary`.
+
+```bash {4}
+$ klassco index.html
+
++ index.html:
+        found 1 duplicate.
+```
+
+Klassco now reports only one duplicate, as there's only one unique class
+combination duplicated in the file. But don't mistake this for a single
+duplication; the unique combination could be repeated numerous times.
+
+The `--summary` flag is designed to help identify the number of unique
+duplications, which can be useful in different scenarios.
+
+Returning to our `index.html` example, `classD`, `classE` is duplicated three
+times. Even if it were duplicated **1000 times**, it's a relatively simple fix
+because it's just one class combination that needs to be abstracted and
+replaced throughout the file.
+
+However, if there are 1000 **unique** class combination duplications, it's a
+different story. That's where `-s` comes in handy, helping you distinguish
+between files that are easier to refactor and those that are more challenging.
+
+In practice, you'll often use `-s` and `-t` against directories to quickly
+assess which directory is more challenging to refactor.
+
+## Next steps
+[Composable Flags [&#8599;]](../core-concepts/key-features)
