@@ -24,6 +24,8 @@ Klassco solely for that purpose.
    utilities as you type, using the ones you have created or loaded.
 
 
+<br />
+
 Klassco uses mathematical combinations to thoroughly explore and analyze
 **every imaginable combination** of your CSS classnames, to help you identify
 subtle patterns, spot redundancies, and create a carefully curated selection
@@ -45,11 +47,11 @@ The simplest and fastest way is to use npm
 $ npm install -g klassco
 ```
 
-If you want to compile from source, you’ll need to have a Haskell compiler
-installed (or stack).
+<br />
 
-Once you have the compiler, you can run the following commands to build and
-execute the program
+If you want to compile from source, you’ll need to have a Haskell compiler
+installed (or stack). Once you have the compiler, you can run the following
+commands to build and execute the program
 
 ```
 $ stack build
