@@ -1,7 +1,3 @@
-<p align="center">Work In Progress</p>
-
-<br />
-
 # Klassco
 Just as components helps developpers abstract and avoid repetition,
 **Klassco** does the same to your css classnames inside your components.
