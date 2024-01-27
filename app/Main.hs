@@ -295,7 +295,7 @@ handleArgs args
               isFilePath <- doesFileExist $ fromJust userPath
               let canShowWarning2 = canGlobalSearch && isFilePath
               let min = minCombo
-              let clean = min == 1 ? (removePrefixes, id)
+              let clean = min == 1 ? (map removePrefixes, id)
               let filterClasses = filter $ filterMethod prefixes
               let cleanClassData = (\(f, x) -> (f, map (clean . filterClasses) x))
 

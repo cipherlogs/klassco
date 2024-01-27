@@ -164,10 +164,8 @@ splitWith seperator = foldr' go [[]]
       | otherwise = (char : x) : xs
 
 
-removePrefixes :: [String] -> [String]
-removePrefixes = map clean
-  where clean = reverse . takeWhile ((/=) ':') . reverse
-
+removePrefixes :: String -> String
+removePrefixes = reverse . takeWhile ((/=) ':') . reverse
 
 takeN :: Int -> [a] -> [a]
 takeN n xs
