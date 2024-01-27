@@ -1,0 +1,121 @@
+import {Steps, Callout} from "nextra/components"
+
+# Quick Start: Phase 1
+In this phase of the [`Quick Start`](/quick-start) series, we'll explore a set
+of features and core concepts to understand the utility of the tool. By the
+end of the series, you should be able to make an informed decision about its
+usefulness.
+
+Before diving into complex examples, let's start with a simple component
+designed with TailwindCSS. We'll use the `promo-sections` from
+[tailwindui.com](#).
+
+<Steps>
+### Step 1
+Copy the code of the first example component from
+`https://tailwindui.com/components/ecommerce/components/promo-sections`.
+
+### Step 2
+Save the copied code in a file named `promo.jsx`.
+
+### Step 3
+Install Klassco and scan the component:
+
+```bash
+$ npm -g i klassco
+$ klassco -m 1 promo.jsx
+```
+
+We're scanning for duplicates of length 1, which helps identify unnecessary
+classes that might have been added by mistake.
+
+The results might look something like this:
+
+```bash
++ promo.jsx:
+        left-1/2
+        duplicated 2 times.
+
+        translate-x-8
+        duplicated 2 times.
+```
+
+### Step 4
+The tool reports two unnecessary duplicates: `left-1/2` and `translate-x-8`.
+Let's check the source code of the component:
+
+```js /left-1/ /translate-x-8/
+className="absolute transform sm:left-1/2 sm:top-0 sm:translate-x-8 lg:left-1/2 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-8"
+```
+
+We can remove `lg:left-1/2` and keep `sm:left-1/2` due to CSS inheritance,
+making it redundant. The same applies to `sm:translate-x-8` and
+`lg:translate-x-8`.
+
+As you can see, it's easy to clean up unnecessary classes. Klassco can do this
+automatically, but it's important to understand the process. These duplicates
+can be hard to spot and impractical to remove manually in large projects.
+
+While you might consider using a text editor to perform a global search and
+replace, this won't always work. Klassco is smart enough to understand when a
+class is truly redundant and when it's necessary due to changes at different
+breakpoints/states.
+
+For example, consider the following:
+
+```js
+className="sm:opacity-50 md:opacity-50 hover:opacity-50 xl:opacity-100"
+```
+
+In this case, Klassco will only remove `md:opacity-50`, understanding that `hover:opacity-50` is necessary once the xl breakpoint is in use.
+
+In cases without any prefixes, such as `className="classA classB
+classA"{:js}`, Klassco will remove the first occurrence of classA due to how
+CSS works. `className="classB classA"{:js}`
+</Steps>
+
+## Automatic purge
+Klassco can automatically delete all the unnecessary classnames from your
+components. You can configure it to do this every time you save the file you
+are working on or perform a global action to remove all duplicates from all files in your project.
+
+Learn more about this in the [Options [&#8599;]](../options) section, and
+check the [dev [&#8599;]](https://github.com/cipherlogs/klassco) branch of
+repo for upcoming features/changes.
+
+<Callout>
+when using the option `-m 1`, Klassco will report how many duplicates were
+found on **that line** itself instead of the whole file, for example
+`sm:opacity-50 md:opacity-10 lg:opacity-50` it will show that `opacity-50` was
+repeated twice in that line, however when using the tool to remove the useless
+duplicates, it won't count them as duplicates so the previous line will be
+ignored.
+
+the reason is that when you are using Klassco in analysis mode it is helful to
+see what duplicates you have in your code, but when you use the tool to minify
+or remove duplicates, only the true duplicates will be removed.
+
+learn how [**-m --min** [&#8599;]](/options/min) works.
+</Callout>
+
+<Callout type="info">If you have `tailwind-prettier`, all duplicates will be
+grouped together. However, for compatibility with vanilla CSS or other CSS
+libraries, Klassco assumes you don't have it.</Callout>
+
+
+
+## Your turn
+Try scanning the whole `src` directory of one of your projects with Klassco:
+
+```bash
+$ klassco -m 1 src
+```
+
+**How many unnecessary duplicates of length 1 did you find?**
+
+
+
+## Next steps
+Now that we've learned how to remove unnecessary duplicates from our codebase,
+it's time to deal with duplicates that can't be removed. In [Phase
+2](/quick-start/phase2), we'll learn how to build layers and abstract.
