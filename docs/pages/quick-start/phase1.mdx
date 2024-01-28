@@ -6,9 +6,34 @@ of features and core concepts to understand the utility of the tool. By the
 end of the series, you should be able to make an informed decision about its
 usefulness.
 
-Before diving into complex examples, let's start with a simple component
-designed with TailwindCSS. We'll use the `promo-sections` from
-[tailwindui.com](#).
+Let's examine an example snippet:
+
+```js
+className="ring-inset focus-within:ring-inset"
+```
+
+In this snippet, the `focus-within:ring-inset` is redundant and serves no
+purpose. it is essentially a duplicate that should be eliminated.
+
+You might be thinking, *"Who would include such obvious duplicates?"* However,
+later when you perform a quick scan **on your project**, you will be surprised
+to find numerous instances.
+
+<Callout type="info">
+It's important to note that tools like `eslint-plugin-tailwindcss`, the
+`headwind` VS Code extension, or `tailwind-merge` are unable to remove these
+specific types of duplicates.
+</Callout>
+
+## Analyzing Real-World Code
+Rather than crafting code for the sole purpose of showcasing Klassco's
+capabilities, I opt for a more genuine approach by analyzing and refining
+real-world code. In this demonstration, we'll use code authored by
+`tailwindui.com`
+
+Let's begin by examining a straightforward component crafted with TailwindCSS,
+specifically focusing on the `promo-sections`.
+
 
 <Steps>
 ### Step 1
@@ -26,8 +51,8 @@ $ npm -g i klassco
 $ klassco -m 1 promo.jsx
 ```
 
-We're scanning for duplicates of length 1, which helps identify unnecessary
-classes that might have been added by mistake.
+We're scanning for duplicates of length 1, which helps identify
+unnecessary/useless classes.
 
 The results might look something like this:
 
@@ -48,10 +73,13 @@ Let's check the source code of the component:
 className="absolute transform sm:left-1/2 sm:top-0 sm:translate-x-8 lg:left-1/2 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-8"
 ```
 
-We can remove `lg:left-1/2` and keep `sm:left-1/2` due to CSS inheritance,
-making it redundant. The same applies to `sm:translate-x-8` and
-`lg:translate-x-8`.
++ We can remove `lg:left-1/2` and keep `sm:left-1/2` due to CSS inheritance,
+    making it redundant.
 
++ The same applies to `sm:translate-x-8` and
+    `lg:translate-x-8`.
+
+<br />
 As you can see, it's easy to clean up unnecessary classes. Klassco can do this
 automatically, but it's important to understand the process. These duplicates
 can be hard to spot and impractical to remove manually in large projects.
@@ -70,8 +98,8 @@ className="sm:opacity-50 md:opacity-50 hover:opacity-50 xl:opacity-100"
 In this case, Klassco will only remove `md:opacity-50`, understanding that `hover:opacity-50` is necessary once the xl breakpoint is in use.
 
 In cases without any prefixes, such as `className="classA classB
-classA"{:js}`, Klassco will remove the first occurrence of classA due to how
-CSS works. `className="classB classA"{:js}`
+classA"{:js}`, Klassco will keep the last occurrence of `classA` and remove
+the rest `className="classB classA"{:js}`.
 </Steps>
 
 ## Automatic purge
@@ -81,7 +109,7 @@ are working on or perform a global action to remove all duplicates from all file
 
 Learn more about this in the [Options [&#8599;]](../options) section, and
 check the [dev [&#8599;]](https://github.com/cipherlogs/klassco) branch of
-repo for upcoming features/changes.
+the repo for upcoming features/changes.
 
 <Callout>
 when using the option `-m 1`, Klassco will report how many duplicates were
