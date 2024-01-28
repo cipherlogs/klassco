@@ -28,7 +28,7 @@ $ klassco -m 7 -t src
 
 This scan only accounted for duplicates of length 7 `-m 7`, excluding duplicates of lengths 1, 2, 3, 4, and so on.
 
-Ther result? **Sixty seven thousand duplicates** and counting. Can you imagine
+The result? **Sixty seven thousand duplicates** and counting. Can you imagine
 the total if we included those? Half a million? A million? <ins>Neither would
 surprise me</ins>.
 
@@ -41,13 +41,15 @@ Tailwind, where utility classes will lead to <ins>extensive redundancy</ins>.
 
 
 ## 3. Should I be worried?
-Duplication is a sign of room for improvement, regardless of whether it’s
-Tailwind, Pure CSS, or a programming language. We have found a lot of
-repetition and you might think that the repetition of classes using Tailwind
-is **intentional** and has no cost.
+One might assume that the deliberate repetition of classes in Tailwind is
+without consequences, and that employing front-end components is the optimal
+strategy to address this issue. This assumption is not accurate, and we will
+explore real examples to substantiate this claim.
 
-To help you make an informed decision, let's work on some [real-world
-examples](#next).
+It's crucial to recognize that duplication, at its essence, signifies an opportunity for enhancement, irrespective of whether it pertains to Tailwind, Vanilla CSS, or any programming language. While components certainly contribute to improvement, there exists a potential **for even more refined solutions**.
+
+
+Let's examine Klassco on some [real-world examples](#next).
 
 
 ## 4. How Does Klassco Work?
@@ -55,14 +57,14 @@ There are three available modes, each independent of the others. This means
 that if you're only interested in reducing the bundle size, you can use
 Klassco solely for that purpose.
 
-1. **Build**: It optimizes the build size by removing all duplicate combos.
-
-2. **Dev**: It scans all of your HTML files, JavaScript components, and other
+1. **Dev**: It scans all of your HTML files, JavaScript components, and other
    templates for classname combo duplications to help you reuse styles and
    create higher abstractions.
 
-3. **Watch**: It automatically replaces classname combinations with new
+2. **Watch**: It automatically replaces classname combinations with new
    utilities as you type, using the ones you have created or loaded.
+
+3. **Build**: It optimizes the build size by removing all duplicate combos.
 
 
 Klassco uses mathematical combinations to thoroughly explore and analyze
