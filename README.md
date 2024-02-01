@@ -1,6 +1,7 @@
 # Klassco
 Just as components helps developpers abstract and avoid repetition,
-**Klassco** does the same to your css classnames inside your components.
+**Klassco** helps you do the same to your css classnames inside your
+components.
 
 
 <br />
