@@ -8,25 +8,29 @@ package manager.
 <Tabs items={["pnpm", "bun", "npm", "yarn"]}>
   <Tabs.Tab>
       ```bash
-      pnpm i klassco
+      $ pnpm -g i klassco
+
       ```
   </Tabs.Tab>
   <Tabs.Tab>
       ```bash
-      bun add klassco
+      bun -g add klassco
       ```
   </Tabs.Tab>
   <Tabs.Tab>
       ```bash
-      npm i klassco
+      npm -g i klassco
       ```
   </Tabs.Tab>
   <Tabs.Tab>
       ```bash
-      yarn add klassco
+      yarn -g add klassco
       ```
   </Tabs.Tab>
 </Tabs>
+
+**Note**: If you are using Windows, type `klassco-win` in your terminal
+instead of `klassco`.
 
 If you want to build from source, see the
 [repo](https://github.com/cipherlogs/klassco) for guidance.

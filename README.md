@@ -42,6 +42,9 @@ The simplest and fastest way is to use npm
 
 ```bash
 $ npm install -g klassco
+
+$ klassco <- if you are using linux/max
+$ klassco-win <- if you are windows
 ```
 
 <br />
