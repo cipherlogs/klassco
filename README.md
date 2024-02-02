@@ -37,29 +37,6 @@ For full documentation, visit [klassco.cipherlogs.com](https://klassco.cipherlog
 
 <br />
 
-## Installation
-The simplest and fastest way is to use npm
-
-```bash
-$ npm install -g klassco
-
-$ klassco <- if you are using linux/max
-$ klassco-win <- if you are windows
-```
-
-<br />
-
-If you want to compile from source, you’ll need to have a Haskell compiler
-installed (or stack). Once you have the compiler, you can run the following
-commands to build and execute the program
-
-```
-$ stack build
-$ stack exec Klassco-exe
-```
-
-<br />
-
 ## Contribution
 If you're passionate about clarity and want to make the project more
 accessible to everyone, contributing to the documentation is a fantastic way
